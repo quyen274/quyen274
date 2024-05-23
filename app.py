@@ -5,7 +5,7 @@ from sklearn.datasets import load_iris
 iris = load_iris()
 
 # Load the trained model
-clf = pickle.load(open('iris_classifier.pkl', 'rb'))
+clf = pickle.load(open('iris_model.pkl', 'rb'))
 
 # Sidebar for user input
 st.sidebar.title('Iris Classifier')
