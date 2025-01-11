@@ -211,7 +211,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         new_df = pd.DataFrame(new_data)
         return pd.concat([data, new_df], ignore_index=True)
 
-    # Placeholder for KPI and Charts
+    # KPI and Chart Placeholders
     kpi_placeholder = st.empty()
     chart_placeholder = st.empty()
 
@@ -220,6 +220,17 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
         # Filter data for the selected platforms and products
         filtered_data = filter_data(current_day_sales, selected_platforms, selected_products)
+
+        # KPI Calculation
+        total_sales = filtered_data['Sales (15 min)'].sum()
+        total_revenue = total_sales * 200_000  # Giả định giá mỗi sản phẩm 200,000 VND
+        total_cost = total_revenue * 0.6  # Giả định chi phí là 60% doanh thu
+        total_profit = total_revenue - total_cost
+
+        # Display KPIs
+        with kpi_placeholder.container():
+            st.metric("Tổng Doanh Thu", f"{total_revenue:,.0f} VND", delta=f"+{total_sales:,} sản phẩm")
+            st.metric("Tổng Lợi Nhuận", f"{total_profit:,.0f} VND", delta=f"+{total_profit * 0.4 / total_revenue * 100:.1f}%")
 
         # Prepare data for the bar and line chart
         pivot_data = filtered_data.pivot_table(
@@ -256,6 +267,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     marker=dict(size=8)  # Marker size
                 ))
 
+        # Update layout
         fig.update_layout(
             barmode='stack',
             title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
@@ -268,7 +280,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
         )
 
-        # Display the chart
+        # Update the chart in the placeholder
         chart_placeholder.plotly_chart(fig, use_container_width=True)
 
     # Adjust the dataset time
@@ -287,5 +299,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         update_kpis_and_chart()
         current_day_sales = simulate_new_data(current_day_sales)
         time.sleep(5)
+
 
 
