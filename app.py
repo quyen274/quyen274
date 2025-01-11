@@ -154,10 +154,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
     st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
 
-    # Sidebar for filtering
-    selected_platforms = st.sidebar.multiselect("Chọn nền tảng:", platforms, default=platforms)
-    selected_products = st.sidebar.multiselect("Chọn loại sản phẩm:", products, default=products)
-
     # Placeholder for charts
     area_placeholder1 = st.empty()
     area_placeholder2 = st.empty()
@@ -179,29 +175,46 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     def simulate_and_update_area():
         global simulation_data_platform, simulation_data_product
 
-        # Filter based on user selection
-        filtered_platform_data = simulation_data_platform[simulation_data_platform['Platform'].isin(selected_platforms)]
-        filtered_product_data = simulation_data_product[simulation_data_product['Product'].isin(selected_products)]
+        # Simulate new data by adding a new timestamp and adjusting existing percentages
+        latest_date = simulation_data_platform['Date'].max()
+        new_date = latest_date + pd.Timedelta(days=1)
 
-        # Normalize percentages for filtered data
-        for date in filtered_platform_data['Date'].unique():
-            date_mask = filtered_platform_data['Date'] == date
-            filtered_platform_data.loc[date_mask, 'Percentage'] = (
-                filtered_platform_data.loc[date_mask, 'Percentage'] /
-                filtered_platform_data.loc[date_mask, 'Percentage'].sum()
-            ) * 100
+        for group, simulation_data in [('Platform', simulation_data_platform), ('Product', simulation_data_product)]:
+            for value in simulation_data[group].unique():
+                # Create new data point
+                new_percentage = np.random.uniform(5, 25)  # Randomized percentage for new data
+                new_entry = {
+                    'Date': new_date,
+                    group: value,
+                    'Daily Sales': 0,  # Placeholder for actual sales
+                    'Daily Sales_Total': 0,  # Placeholder
+                    'Percentage': new_percentage
+                }
+                simulation_data = pd.concat([simulation_data, pd.DataFrame([new_entry])], ignore_index=True)
 
-        for date in filtered_product_data['Date'].unique():
-            date_mask = filtered_product_data['Date'] == date
-            filtered_product_data.loc[date_mask, 'Percentage'] = (
-                filtered_product_data.loc[date_mask, 'Percentage'] /
-                filtered_product_data.loc[date_mask, 'Percentage'].sum()
-            ) * 100
+            # Adjust percentages for the existing data to ensure they sum to 100%
+            for date in simulation_data['Date'].unique():
+                date_mask = simulation_data['Date'] == date
+                simulation_data.loc[date_mask, 'Percentage'] = (
+                    simulation_data.loc[date_mask, 'Percentage'] /
+                    simulation_data.loc[date_mask, 'Percentage'].sum()
+                ) * 100
 
-        # Update area chart for platforms
+            # Remove old data points to simulate "scrolling"
+            if len(simulation_data['Date'].unique()) > 10:  # Keep only the latest 10 timestamps
+                oldest_date = simulation_data['Date'].min()
+                simulation_data = simulation_data[simulation_data['Date'] > oldest_date]
+
+            # Update the global variable
+            if group == 'Platform':
+                simulation_data_platform = simulation_data
+            else:
+                simulation_data_product = simulation_data
+
+        # Update area charts
         fig_area_platform = go.Figure()
-        for platform in selected_platforms:
-            platform_data = filtered_platform_data[filtered_platform_data['Platform'] == platform]
+        for platform in platforms:
+            platform_data = simulation_data_platform[simulation_data_platform['Platform'] == platform]
             fig_area_platform.add_trace(go.Scatter(
                 x=platform_data['Date'],
                 y=platform_data['Percentage'],
@@ -217,10 +230,9 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             template="plotly_white"
         )
 
-        # Update area chart for products
         fig_area_product = go.Figure()
-        for product in selected_products:
-            product_data = filtered_product_data[filtered_product_data['Product'] == product]
+        for product in products:
+            product_data = simulation_data_product[simulation_data_product['Product'] == product]
             fig_area_product.add_trace(go.Scatter(
                 x=product_data['Date'],
                 y=product_data['Percentage'],
@@ -244,4 +256,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     while True:
         simulate_and_update_area()
         time.sleep(5)
+
+
 
