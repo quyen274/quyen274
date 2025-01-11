@@ -195,77 +195,91 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     selected_platforms = st.sidebar.multiselect("Chọn nền tảng:", platforms, default=platforms)
     selected_products = st.sidebar.multiselect("Chọn loại sản phẩm:", products, default=products)
 
-    # Placeholder for KPI and Area charts
-    kpi_placeholder = st.empty()
-    area_placeholder1 = st.empty()
-    area_placeholder2 = st.empty()
+    # Biểu đồ miền: Phân phối doanh số theo thời gian (Nền tảng và sản phẩm)
+    st.write("### Phân phối doanh số theo thời gian")
 
-    def update_kpis_and_areas():
-        global current_day_sales
+    # Prepare data for area chart
+    sales_by_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
+    sales_by_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
 
-        # Placeholder for dynamic updates
-        current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
-        latest_time = current_day_sales['Time'].max() + pd.Timedelta(minutes=15)
+    # Convert to percentage
+    total_sales_by_date = daily_sales.groupby('Date')['Daily Sales'].sum().reset_index()
+    sales_by_platform = sales_by_platform.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
+    sales_by_platform['Percentage'] = (sales_by_platform['Daily Sales'] / sales_by_platform['Daily Sales_Total']) * 100
 
-        # Simulating new data
-        new_data = []
-        for platform in platforms:
-            for product in products:
-                sales_15_min = np.random.randint(1, 20)
-                new_data.append({
-                    'Time': latest_time, 'Platform': platform, 'Product': product, 'Sales (15 min)': sales_15_min
-                })
+    sales_by_product = sales_by_product.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
+    sales_by_product['Percentage'] = (sales_by_product['Daily Sales'] / sales_by_product['Daily Sales_Total']) * 100
 
-        new_sales = pd.DataFrame(new_data)
-        current_day_sales = pd.concat([current_day_sales, new_sales], ignore_index=True)
-
-        # Calculate percentage for platforms
-        sales_by_platform = current_day_sales.groupby('Platform')['Sales (15 min)'].sum()
-        total_platform_sales = sales_by_platform.sum()
-        platform_percentage = (sales_by_platform / total_platform_sales) * 100
-
-        # Calculate percentage for products
-        sales_by_product = current_day_sales.groupby('Product')['Sales (15 min)'].sum()
-        total_product_sales = sales_by_product.sum()
-        product_percentage = (sales_by_product / total_product_sales) * 100
-
-        # Update Area Chart: Sales by Platform
-        fig_area1 = go.Figure()
-        fig_area1.add_trace(go.Scatter(
-            x=platform_percentage.index,
-            y=platform_percentage.values,
-            fill='tonexty',
-            mode='lines+markers',
-            name='Platform Distribution'
+    # Create area chart for platforms
+    fig_area_platform = go.Figure()
+    for platform in platforms:
+        platform_data = sales_by_platform[sales_by_platform['Platform'] == platform]
+        fig_area_platform.add_trace(go.Scatter(
+            x=platform_data['Date'],
+            y=platform_data['Percentage'],
+            stackgroup='one',
+            name=platform
         ))
-        fig_area1.update_layout(
-            title="Tỷ Lệ Doanh Số Theo Nền Tảng",
-            xaxis_title="Nền Tảng",
-            yaxis_title="Tỷ Lệ (%)",
-            height=350
-        )
 
-        # Update Area Chart: Sales by Product
-        fig_area2 = go.Figure()
-        fig_area2.add_trace(go.Scatter(
-            x=product_percentage.index,
-            y=product_percentage.values,
-            fill='tonexty',
-            mode='lines+markers',
-            name='Product Distribution'
+    fig_area_platform.update_layout(
+        title="Tỷ lệ doanh số theo nền tảng (Thời gian)",
+        xaxis_title="Thời gian",
+        yaxis_title="Tỷ lệ (%)",
+        height=400,
+        template="plotly_white"
+    )
+
+    # Create area chart for products
+    fig_area_product = go.Figure()
+    for product in products:
+        product_data = sales_by_product[sales_by_product['Product'] == product]
+        fig_area_product.add_trace(go.Scatter(
+            x=product_data['Date'],
+            y=product_data['Percentage'],
+            stackgroup='one',
+            name=product
         ))
-        fig_area2.update_layout(
-            title="Tỷ Lệ Doanh Số Theo Loại Sản Phẩm",
-            xaxis_title="Sản Phẩm",
-            yaxis_title="Tỷ Lệ (%)",
-            height=350
+
+    fig_area_product.update_layout(
+        title="Tỷ lệ doanh số theo loại sản phẩm (Thời gian)",
+        xaxis_title="Thời gian",
+        yaxis_title="Tỷ lệ (%)",
+        height=400,
+        template="plotly_white"
+    )
+
+    # Display area charts
+    st.plotly_chart(fig_area_platform, use_container_width=True)
+    st.plotly_chart(fig_area_product, use_container_width=True)
+
+    # Biểu đồ cột và đường (giữ nguyên tự động cập nhật)
+    st.write("### Doanh số bán hàng tự động cập nhật")
+
+    def prepare_data(data):
+        pivot_data = data.pivot_table(
+            index='Date', columns='Platform', values='Daily Sales', aggfunc='sum', fill_value=0
         )
+        return pivot_data
 
-        # Display updated charts
-        with st.columns(2)[0]:
-            area_placeholder1.plotly_chart(fig_area1, use_container_width=True)
-        with st.columns(2)[1]:
-            area_placeholder2.plotly_chart(fig_area2, use_container_width=True)
+    filtered_data = prepare_data(daily_sales)
 
-    # Initial chart rendering
-    update_kpis_and_areas()
+    fig_line = go.Figure()
+
+    for platform in platforms:
+        if platform in filtered_data.columns:
+            fig_line.add_trace(go.Bar(
+                x=filtered_data.index,
+                y=filtered_data[platform],
+                name=f"{platform}"
+            ))
+
+    fig_line.update_layout(
+        barmode='stack',
+        title="Doanh số theo thời gian",
+        xaxis_title="Thời gian",
+        yaxis_title="Doanh số",
+        height=400,
+        template="plotly_white"
+    )
+
+    st.plotly_chart(fig_line, use_container_width=True)
