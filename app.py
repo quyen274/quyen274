@@ -196,103 +196,35 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     selected_products = st.sidebar.multiselect("Chọn loại sản phẩm:", products, default=products)
     zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 10, 50, 20)
 
-    # Filter data based on user selection
-    def filter_data(data, platforms, products):
-        return data[(data['Platform'].isin(platforms)) & (data['Product'].isin(products))]
-
-    # Simulate new data for live updates
-    def simulate_new_data(data):
-        latest_time = data['Time'].max() + pd.Timedelta(minutes=15)
-        new_data = []
-        for platform in platforms:
-            for product in products:
-                sales_15_min = np.random.randint(1, 20)
-                new_data.append({'Time': latest_time, 'Platform': platform, 'Product': product, 'Sales (15 min)': sales_15_min})
-        new_df = pd.DataFrame(new_data)
-        return pd.concat([data, new_df], ignore_index=True)
-
-    # Initialize variables for real-time simulation
-    current_revenue = 100_000_000  # Starting revenue
-    current_cost = 60_000_000  # Starting cost
-    sales_by_platform = {platform: 100 / len(platforms) for platform in platforms}
-    sales_by_product = {product: 100 / len(products) for product in products}
-
-    # Placeholder for charts
+    # Placeholder for KPI and charts
     kpi_placeholder = st.empty()
     area_placeholder1 = st.empty()
     area_placeholder2 = st.empty()
     chart_placeholder = st.empty()
 
-    def update_kpis_and_pies():
-        global current_revenue, current_cost, sales_by_platform, sales_by_product
-        
-        # Update revenue and cost
-        current_revenue += 150_000  # Increase revenue every 5 seconds
-        current_cost = current_revenue * 0.6  # Cost is 60% of revenue
-        profit = current_revenue - current_cost
-        
-        # Display KPIs
+    # KPI update function
+    def update_kpis():
+        revenue = daily_sales['Daily Sales'].sum()
+        cost = revenue * 0.6  # Assuming cost is 60% of revenue
+        profit = revenue - cost
+
         with kpi_placeholder.container():
-                st.metric("Tổng Doanh Thu", f"${current_revenue / 1e6:.2f}M", delta=f"+0.15M")
-                st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
+            st.metric("Tổng Doanh Thu", f"${revenue / 1e6:.2f}M")
+            st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M")
 
-
-    # Initialize simulation data
-    simulation_data_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
-    simulation_data_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
-
-    # Add initial normalized percentages
+    # Area chart update function
     def normalize_data(grouped_data, group_by):
         total_sales_by_date = grouped_data.groupby('Date')['Daily Sales'].sum().reset_index()
         grouped_data = grouped_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
         grouped_data['Percentage'] = (grouped_data['Daily Sales'] / grouped_data['Daily Sales_Total']) * 100
         return grouped_data
 
-    simulation_data_platform = normalize_data(simulation_data_platform, 'Platform')
-    simulation_data_product = normalize_data(simulation_data_product, 'Product')
+    simulation_data_platform = normalize_data(daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index(), 'Platform')
+    simulation_data_product = normalize_data(daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index(), 'Product')
 
-    def simulate_and_update_area():
-        global simulation_data_platform, simulation_data_product
-
-        # Simulate new data by adding a new timestamp and adjusting existing percentages
-        latest_date = simulation_data_platform['Date'].max()
-        new_date = latest_date + pd.Timedelta(days=1)
-
-        for group, simulation_data in [('Platform', simulation_data_platform), ('Product', simulation_data_product)]:
-            for value in simulation_data[group].unique():
-                # Create new data point
-                new_percentage = np.random.uniform(5, 25)  # Randomized percentage for new data
-                new_entry = {
-                    'Date': new_date,
-                    group: value,
-                    'Daily Sales': 0,  # Placeholder for actual sales
-                    'Daily Sales_Total': 0,  # Placeholder
-                    'Percentage': new_percentage
-                }
-                simulation_data = pd.concat([simulation_data, pd.DataFrame([new_entry])], ignore_index=True)
-
-            # Adjust percentages for the existing data to ensure they sum to 100%
-            for date in simulation_data['Date'].unique():
-                date_mask = simulation_data['Date'] == date
-                simulation_data.loc[date_mask, 'Percentage'] = (
-                    simulation_data.loc[date_mask, 'Percentage'] /
-                    simulation_data.loc[date_mask, 'Percentage'].sum()
-                ) * 100
-
-            # Remove old data points to simulate "scrolling"
-            if len(simulation_data['Date'].unique()) > 10:  # Keep only the latest 10 timestamps
-                oldest_date = simulation_data['Date'].min()
-                simulation_data = simulation_data[simulation_data['Date'] > oldest_date]
-
-            # Update the global variable
-            if group == 'Platform':
-                simulation_data_platform = simulation_data
-            else:
-                simulation_data_product = simulation_data
-
-        # Update area charts
+    def update_area_charts():
         fig_area_platform = go.Figure()
-        for platform in platforms:
+        for platform in selected_platforms:
             platform_data = simulation_data_platform[simulation_data_platform['Platform'] == platform]
             fig_area_platform.add_trace(go.Scatter(
                 x=platform_data['Date'],
@@ -310,7 +242,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         )
 
         fig_area_product = go.Figure()
-        for product in products:
+        for product in selected_products:
             product_data = simulation_data_product[simulation_data_product['Product'] == product]
             fig_area_product.add_trace(go.Scatter(
                 x=product_data['Date'],
@@ -327,44 +259,26 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             template="plotly_white"
         )
 
-        # Display updated charts
         area_placeholder1.plotly_chart(fig_area_platform, use_container_width=True)
         area_placeholder2.plotly_chart(fig_area_product, use_container_width=True)
 
-    # Continuous updates
-    while True:
-        simulate_and_update_area()
-        time.sleep(5)
-def adjust_time(data):
-        min_time = data['Time'].min()
-        current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
-        time_diff = current_time - min_time
-        data['Time'] = data['Time'] + time_diff
-        return data
+    # Stacked bar and line chart update function
+    def prepare_data(data):
+        pivot_data = data.pivot_table(
+            index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
+        )
+        return pivot_data
 
-current_day_sales = adjust_time(current_day_sales)
-data = current_day_sales.copy()
+    def update_stacked_chart():
+        filtered_data = prepare_data(current_day_sales)
 
-while True:
-        # Update KPIs and Pie Charts
-        update_kpis_and_pies()
-
-        # Filter data based on user selections
-        filtered_data = filter_data(data, selected_platforms, selected_products)
-
-        # Prepare data for chart
-        pivot_data = prepare_data(filtered_data)
-
-        # Select visible data based on zoom level
-        if len(pivot_data) > zoom_level:
-            visible_data = pivot_data.iloc[-zoom_level:]
+        if len(filtered_data) > zoom_level:
+            visible_data = filtered_data.iloc[-zoom_level:]
         else:
-            visible_data = pivot_data
+            visible_data = filtered_data
 
-        # Create Plotly figure
         fig = go.Figure()
 
-        # Add stacked bar traces
         for platform in selected_platforms:
             if platform in visible_data.columns:
                 fig.add_trace(go.Bar(
@@ -373,9 +287,8 @@ while True:
                     name=platform
                 ))
 
-        # Add line traces
         cumulative_data = visible_data.cumsum(axis=1)
-        for i, platform in enumerate(selected_platforms):
+        for platform in selected_platforms:
             if platform in cumulative_data.columns:
                 fig.add_trace(go.Scatter(
                     x=visible_data.index,
@@ -393,13 +306,11 @@ while True:
             template="plotly_white"
         )
 
-        # Update the chart in the placeholder
         chart_placeholder.plotly_chart(fig, use_container_width=True)
 
-        # Simulate new data
-        data = simulate_new_data(data)
-
-        # Pause for real-time simulation
-        time.sleep(5)
+    # Update all charts and KPIs continuously
+    update_kpis()
+    update_area_charts()
+    update_stacked_chart()
 
 
