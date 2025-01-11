@@ -206,7 +206,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         new_data = []
         for platform in platforms:
             for product in products:
-                sales_15_min = np.random.randint(1, 20)
+                sales_15_min = np.random.randint(1, 20)  # Random sales in 15 minutes
                 new_data.append({'Time': latest_time, 'Platform': platform, 'Product': product, 'Sales (15 min)': sales_15_min})
         new_df = pd.DataFrame(new_data)
         return pd.concat([data, new_df], ignore_index=True)
@@ -226,16 +226,11 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
         )
 
-        # Calculate cumulative sales for the line chart
-        cumulative_data = pivot_data.cumsum()
-
         # Select visible data based on zoom level
         if len(pivot_data) > zoom_level:
             visible_data = pivot_data.iloc[-zoom_level:]
-            visible_cumulative = cumulative_data.iloc[-zoom_level:]
         else:
             visible_data = pivot_data
-            visible_cumulative = cumulative_data
 
         # Create Plotly figure
         fig = go.Figure()
@@ -249,22 +244,23 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     name=f"{platform} (Bar)"
                 ))
 
-        # Add line chart traces
+        # Add line chart traces (matching bar chart points)
         for platform in selected_platforms:
-            if platform in visible_cumulative.columns:
+            if platform in visible_data.columns:
                 fig.add_trace(go.Scatter(
-                    x=visible_cumulative.index,
-                    y=visible_cumulative[platform],
+                    x=visible_data.index,
+                    y=visible_data[platform],
                     mode='lines+markers',
-                    name=f"{platform} (Cumulative)",
-                    line=dict(width=2)
+                    name=f"{platform} (Line)",
+                    line=dict(width=2, dash='solid'),  # Line style
+                    marker=dict(size=8)  # Marker size
                 ))
 
         fig.update_layout(
             barmode='stack',
-            title="Biểu Đồ Doanh Số Theo Thời Gian",
+            title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
             xaxis_title="Thời Gian",
-            yaxis_title="Doanh Số",
+            yaxis_title="Số Lượng Bán",
             xaxis=dict(rangeslider=dict(visible=True), type="date"),
             height=500,
             template="plotly_white",
