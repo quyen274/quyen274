@@ -202,15 +202,31 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     area_placeholder2 = st.empty()
     chart_placeholder = st.empty()
 
+    # Initialize simulation variables
+    current_revenue = 100_000_000  # Starting revenue
+    current_cost = 60_000_000  # Starting cost
+
+    # Function to simulate new data
+    def simulate_new_data(data):
+        latest_time = data['Time'].max() + pd.Timedelta(minutes=15)
+        new_data = []
+        for platform in platforms:
+            for product in products:
+                sales_15_min = np.random.randint(1, 20)
+                new_data.append({'Time': latest_time, 'Platform': platform, 'Product': product, 'Sales (15 min)': sales_15_min})
+        new_df = pd.DataFrame(new_data)
+        return pd.concat([data, new_df], ignore_index=True)
+
     # KPI update function
     def update_kpis():
-        revenue = daily_sales['Daily Sales'].sum()
-        cost = revenue * 0.6  # Assuming cost is 60% of revenue
-        profit = revenue - cost
+        global current_revenue, current_cost
+        current_revenue += 150_000
+        current_cost = current_revenue * 0.6
+        profit = current_revenue - current_cost
 
         with kpi_placeholder.container():
-            st.metric("Tổng Doanh Thu", f"${revenue / 1e6:.2f}M")
-            st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M")
+            st.metric("Tổng Doanh Thu", f"${current_revenue / 1e6:.2f}M", delta=f"+0.15M")
+            st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
 
     # Area chart update function
     def normalize_data(grouped_data, group_by):
@@ -308,9 +324,26 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
         chart_placeholder.plotly_chart(fig, use_container_width=True)
 
-    # Update all charts and KPIs continuously
-    update_kpis()
-    update_area_charts()
-    update_stacked_chart()
+    # Adjust data time to align with current time
+    def adjust_time(data):
+        min_time = data['Time'].min()
+        current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
+        time_diff = current_time - min_time
+        data['Time'] = data['Time'] + time_diff
+        return data
+
+    current_day_sales = adjust_time(current_day_sales)
+    data = current_day_sales.copy()
+
+    # Continuous updates
+    while True:
+        update_kpis()
+        update_area_charts()
+        update_stacked_chart()
+
+        data = simulate_new_data(data)
+        current_day_sales = simulate_new_data(current_day_sales)
+
+        time.sleep(5)
 
 
