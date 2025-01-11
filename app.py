@@ -215,7 +215,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     kpi_placeholder = st.empty()
     chart_placeholder = st.empty()
 
-   def update_kpis_and_chart():
+    def update_kpis_and_chart():
             global current_day_sales
         
             # Filter data for the selected platforms and products
