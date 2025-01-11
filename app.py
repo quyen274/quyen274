@@ -150,43 +150,47 @@ if page == "Phân Tích Sản Phẩm":
     
    
     
-    # Thêm phần chiến dịch Affiliate dưới biểu đồ
-    if page == "Phân Tích Sản Phẩm":
-        st.title("Định Hướng Chiến Dịch Affiliate")
-        
-        if "current_scenario_index" not in st.session_state:
-                st.session_state["current_scenario_index"] = 0    
+elif page == "Báo Cáo Tự Động Về Doanh Số":
+    st.title('Báo Cáo Tự Động Về Doanh Số')
+    st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
 
-        # Hiển thị kịch bản hiện tại
-        scenario = scenarios[st.session_state["current_scenario_index"]]
-        st.write(f"### {scenario['title']}")
-        st.markdown(f"**Mục tiêu:** {scenario['objective']}")
-    
-        st.write("**Phân bổ ngân sách:**")
-        for item, cost in scenario['allocation'].items():
-            st.write(f"- **{item}:** {cost}")
-    
-        st.write("**Lịch trình hoạt động:**")
-        for task in scenario['schedule']:
-            st.write(f"- {task}")
-    
-        st.write("**Chương trình khuyến mãi:**")
-        st.markdown(scenario['promotion'])
-    
-        st.write("**Kỳ vọng hiệu quả:**")
-        if isinstance(scenario['expected'], dict):
-            for key, value in scenario['expected'].items():
-                st.write(f"- **{key}:** {value}")
-        else:
-            st.markdown(scenario['expected'])
-    
-        # Nút chuyển kịch bản
-        if st.button("Gen kịch bản khác"):
-            st.session_state["current_scenario_index"] = (
-                st.session_state["current_scenario_index"] + 1
-            ) % len(scenarios)
-    
-        
+    # Placeholder for charts
+    area_placeholder1 = st.empty()
+    area_placeholder2 = st.empty()
+
+    # Initialize simulation data
+    simulation_data_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
+    simulation_data_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
+
+    # Add initial normalized percentages
+    def normalize_data(grouped_data, group_by):
+        total_sales_by_date = grouped_data.groupby('Date')['Daily Sales'].sum().reset_index()
+        grouped_data = grouped_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
+        grouped_data['Percentage'] = (grouped_data['Daily Sales'] / grouped_data['Daily Sales_Total']) * 100
+        return grouped_data
+
+    simulation_data_platform = normalize_data(simulation_data_platform, 'Platform')
+    simulation_data_product = normalize_data(simulation_data_product, 'Product')
+
+    def simulate_and_update_area():
+        global simulation_data_platform, simulation_data_product
+
+        # Simulate new data by adding a new timestamp and adjusting existing percentages
+        latest_date = simulation_data_platform['Date'].max()
+        new_date = latest_date + pd.Timedelta(days=1)
+
+        for group, simulation_data in [('Platform', simulation_data_platform), ('Product', simulation_data_product)]:
+            for value in simulation_data[group].unique():
+                # Create new data point
+                new_percentage = np.random.uniform(5, 25)  # Randomized percentage for new data
+                new_entry = {
+                    'Date': new_date,
+                    group: value,
+                    'Daily Sales': 0,  # Placeholder for actual sales
+                    'Daily Sales_Total': 0,  # Placeholder
+                    'Percentage': new_percentage
+                }
+                simulation_data = pd.concat([simulation_data, pd.DataFrame([new_entry])], ignore_index=True)
 
             # Adjust percentages for the existing data to ensure they sum to 100%
             for date in simulation_data['Date'].unique():
@@ -252,4 +256,3 @@ if page == "Phân Tích Sản Phẩm":
     while True:
         simulate_and_update_area()
         time.sleep(5)
-
