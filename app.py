@@ -230,8 +230,8 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         
             # Display KPIs
             with kpi_placeholder.container():
-                st.metric("Tổng Doanh Thu", f"{int(total_revenue / 1e6):,} triệu", delta=f"+{total_sales:,} sản phẩm")
-                st.metric("Tổng Lợi Nhuận", f"{int(total_profit / 1e6):,} triệu", delta=f"+{int(total_profit / 1e6):,} triệu")
+                st.metric("Tổng Doanh Thu", f"{int(total_revenue / 1e6):,}", delta=f"+{total_sales:,} sản phẩm")
+                st.metric("Tổng Lợi Nhuận", f"{int(total_profit / 1e6):,}", delta=f"+{int(total_profit / 1e6):,} triệu")
         
             # Prepare data for the bar and line chart
             pivot_data = filtered_data.pivot_table(
@@ -260,7 +260,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     # Add line chart for bar tops
                     fig.add_trace(go.Scatter(
                         x=visible_data.index,
-                        y=visible_data[platform],  # Đường trùng đỉnh cột
+                        y=visible_data[platform],  # Đường đúng đỉnh cột
                         mode='lines+markers',
                         name=f"{platform} (Line)",
                         line=dict(width=2),
@@ -282,7 +282,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         
             # Display the chart
             chart_placeholder.plotly_chart(fig, use_container_width=True)
-
 
     # Adjust the dataset time
     def adjust_time(data):
