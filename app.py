@@ -215,75 +215,76 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     kpi_placeholder = st.empty()
     chart_placeholder = st.empty()
 
-    def update_kpis_and_chart():
-        global current_day_sales
+   def update_kpis_and_chart():
+            global current_day_sales
+        
+            # Filter data for the selected platforms and products
+            filtered_data = filter_data(current_day_sales, selected_platforms, selected_products)
+        
+            # KPI Calculation
+            total_sales = filtered_data['Sales (15 min)'].sum()
+            total_revenue = total_sales * 200  # Giả định giá mỗi sản phẩm là 200
+            total_cost = total_revenue * 0.6  # Chi phí là 60% doanh thu
+            total_profit = total_revenue - total_cost
+        
+            # Display KPIs
+            with kpi_placeholder.container():
+                st.metric("Tổng Doanh Thu", f"{total_revenue:,.0f}", delta=f"+{total_sales:,} sản phẩm")
+                st.metric("Tổng Lợi Nhuận", f"{total_profit:,.0f}", delta=f"+{(total_profit):,.0f}")
+        
+            # Prepare data for the bar and line chart
+            pivot_data = filtered_data.pivot_table(
+                index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
+            )
+        
+            # Select visible data based on zoom level
+            if len(pivot_data) > zoom_level:
+                visible_data = pivot_data.iloc[-zoom_level:]
+            else:
+                visible_data = pivot_data
+        
+            # Create Plotly figure
+            fig = go.Figure()
+        
+            # Add stacked bar traces and line traces
+            for platform in selected_platforms:
+                if platform in visible_data.columns:
+                    # Add bar for platform
+                    fig.add_trace(go.Bar(
+                        x=visible_data.index,
+                        y=visible_data[platform],
+                        name=f"{platform} (Bar)",
+                        marker=dict(color=px.colors.qualitative.Plotly[selected_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
+                    ))
+        
+                    # Add line for platform
+                    fig.add_trace(go.Scatter(
+                        x=visible_data.index,
+                        y=visible_data[platform],  # Sử dụng giá trị chính xác của nền tảng
+                        mode='lines+markers',
+                        name=f"{platform} (Line)",
+                        line=dict(width=2),
+                        marker=dict(size=8),
+                        yaxis="y2"  # Sử dụng trục y thứ hai nếu cần
+                    ))
+        
+            # Update layout
+            fig.update_layout(
+                barmode='stack',
+                title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
+                xaxis_title="Thời Gian",
+                yaxis=dict(title="Số Lượng Bán (Cột)"),
+                yaxis2=dict(title="Số Lượng Bán (Đường)", overlaying="y", side="right"),  # Thêm trục y2
+                xaxis=dict(rangeslider=dict(visible=True), type="date"),
+                height=500,
+                template="plotly_white",
+                margin=dict(l=40, r=40, t=50, b=40),
+                legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
+            )
+        
+            # Display the chart
+            chart_placeholder.plotly_chart(fig, use_container_width=True)
 
-        # Filter data for the selected platforms and products
-        filtered_data = filter_data(current_day_sales, selected_platforms, selected_products)
-
-        # KPI Calculation
-        total_sales = filtered_data['Sales (15 min)'].sum()
-        total_revenue = total_sales * 200  # Giả định giá mỗi sản phẩm là 200
-        total_cost = total_revenue * 0.6  # Chi phí là 60% doanh thu
-        total_profit = total_revenue - total_cost
-
-        # Display KPIs
-        with kpi_placeholder.container():
-            st.metric("Tổng Doanh Thu", f"{total_revenue:,.0f}", delta=f"+{total_sales:,} sản phẩm")
-            st.metric("Tổng Lợi Nhuận", f"{total_profit:,.0f}", delta=f"+{(total_profit):,.0f}")
-
-        # Prepare data for the bar and line chart
-        pivot_data = filtered_data.pivot_table(
-            index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
-        )
-
-        # Select visible data based on zoom level
-        if len(pivot_data) > zoom_level:
-            visible_data = pivot_data.iloc[-zoom_level:]
-        else:
-            visible_data = pivot_data
-
-        # Create Plotly figure
-        fig = go.Figure()
-
-        # Add stacked bar traces
-        for platform in selected_platforms:
-            if platform in visible_data.columns:
-                fig.add_trace(go.Bar(
-                    x=visible_data.index,
-                    y=visible_data[platform],
-                    name=f"{platform} (Bar)",
-                    marker=dict(color=px.colors.qualitative.Plotly[selected_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
-                ))
-
-        # Add line chart traces to match bar tops
-        cumulative_data = visible_data.cumsum(axis=1)  # Cộng dồn theo nền tảng
-        for platform in selected_platforms:
-            if platform in cumulative_data.columns:
-                fig.add_trace(go.Scatter(
-                    x=visible_data.index,
-                    y=cumulative_data[platform],  # Giá trị đúng trên đỉnh cột
-                    mode='lines+markers',
-                    name=f"{platform} (Line)",
-                    line=dict(width=2),
-                    marker=dict(size=8)
-                ))
-
-        # Update layout
-        fig.update_layout(
-            barmode='stack',
-            title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
-            xaxis_title="Thời Gian",
-            yaxis_title="Số Lượng Bán",
-            xaxis=dict(rangeslider=dict(visible=True), type="date"),
-            height=500,
-            template="plotly_white",
-            margin=dict(l=40, r=40, t=50, b=40),
-            legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
-        )
-
-        # Display the chart
-        chart_placeholder.plotly_chart(fig, use_container_width=True)
 
     # Adjust the dataset time
     def adjust_time(data):
