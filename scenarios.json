@@ -1,0 +1,199 @@
+[
+    {
+        "title": "Kịch bản 1: Ngân sách dưới 5 triệu VND",
+        "objective": [
+            "Xây dựng nền tảng cơ bản cho Affiliate bằng cách tận dụng chi phí thấp.",
+            "Tăng nhận diện sản phẩm và doanh số qua quảng cáo đơn giản."
+        ],
+        "allocation": {
+            "Giảm giá sản phẩm": "2 triệu VND",
+            "Quảng cáo livestream": "1 triệu VND",
+            "Quảng cáo bài viết": "1 triệu VND",
+            "Kịch bản nội dung": "1 triệu VND"
+        },
+        "schedule": [
+            "Ngày 1-5: Chuẩn bị hình ảnh, nội dung quảng cáo, và kịch bản livestream.",
+            "Ngày 6-20: Livestream 2 lần/tuần trên TikTok.",
+            "Ngày 21-30: Đánh giá hiệu quả và tối ưu hóa quảng cáo."
+        ],
+        "promotion": "Mua 2 tặng 1 áp dụng cho combo búp bê giá rẻ.",
+        "expected": {
+            "Doanh thu": "50 triệu VND",
+            "Hoa hồng": "5 triệu VND"
+        },
+        "risks": {
+            "Quảng cáo không hiệu quả": "Điều chỉnh đối tượng quảng cáo theo độ tuổi và sở thích."
+        }
+    },
+    {
+        "title": "Kịch bản 2: Ngân sách 5-10 triệu VND",
+        "objective": [
+            "Tăng cường nhận diện thương hiệu thông qua livestream và quảng cáo bài viết.",
+            "Thúc đẩy doanh số qua các chương trình giảm giá và bài viết hấp dẫn."
+        ],
+        "allocation": {
+            "Giảm giá sản phẩm": "3 triệu VND",
+            "Quảng cáo livestream": "2 triệu VND",
+            "Quảng cáo bài viết": "3 triệu VND",
+            "Kịch bản nội dung": "2 triệu VND"
+        },
+        "schedule": [
+            "Ngày 1-5: Chuẩn bị sản phẩm giảm giá và xây dựng nội dung.",
+            "Ngày 6-25: Livestream 3 lần/tuần trên Shopee và TikTok.",
+            "Ngày 26-30: Chạy Flash Sale cuối tháng."
+        ],
+        "promotion": "Giảm 10% cho đơn hàng từ 500K trở lên.",
+        "expected": {
+            "Doanh thu": "80 triệu VND",
+            "Hoa hồng": "10 triệu VND"
+        },
+        "risks": {
+            "Lượng khách truy cập thấp": "Tạo minigame tặng quà để thu hút thêm lượt truy cập."
+        }
+    },
+    {
+        "title": "Kịch bản 3: Ngân sách 10-15 triệu VND",
+        "objective": [
+            "Tăng doanh thu mạnh mẽ thông qua livestream và khuyến mãi hấp dẫn.",
+            "Đẩy mạnh nhận diện thương hiệu trên các nền tảng TikTok và Shopee."
+        ],
+        "allocation": {
+            "Giảm giá sản phẩm": "5 triệu VND",
+            "Quảng cáo livestream": "3 triệu VND",
+            "Quảng cáo bài viết": "4 triệu VND",
+            "Kịch bản nội dung": "3 triệu VND"
+        },
+        "schedule": [
+            "Ngày 1-5: Chuẩn bị hình ảnh sản phẩm, quay video ngắn giới thiệu sản phẩm và xây dựng kịch bản livestream.",
+            "Ngày 6-15: Chạy quảng cáo bài viết và tổ chức 3 buổi livestream trên TikTok, Shopee (18:30 - 20:30).",
+            "Ngày 16-20: Thực hiện chiến dịch giảm giá mạnh, thúc đẩy khách hàng mua hàng bằng cách quảng cáo flash sale vào giờ cao điểm.",
+            "Ngày 21-30: Tiếp tục đẩy mạnh livestream và tối ưu hóa chiến dịch quảng cáo."
+        ],
+        "promotion": "Giảm giá 15% toàn bộ sản phẩm vào ngày 15 và 30 hàng tháng.",
+        "expected": {
+            "Doanh thu": "100-120 triệu VND",
+            "Hoa hồng": "15 triệu VND"
+        },
+        "risks": {
+            "Livestream không thu hút được người xem": "Sử dụng tính năng 'thông báo livestream' trên TikTok và gửi email marketing để thông báo khách hàng.",
+            "Chương trình giảm giá không đạt hiệu quả mong muốn": "Chạy chiến dịch remarketing trên Facebook để thu hút lại các khách hàng đã xem sản phẩm nhưng chưa mua."
+        }
+    },
+    {
+        "title": "Kịch bản 4: Ngân sách 20-25 triệu VND",
+        "objective": [
+            "Tăng doanh thu thông qua các chiến dịch giảm giá và quảng bá trên nền tảng TikTok và Shopee.",
+            "Nâng cao nhận diện thương hiệu với các chiến dịch livestream và nội dung sáng tạo."
+        ],
+        "allocation": {
+            "Giảm giá sản phẩm": "7 triệu VND",
+            "Quảng cáo livestream": "5 triệu VND",
+            "Quảng cáo bài viết": "5 triệu VND",
+            "Kịch bản nội dung": "3 triệu VND",
+            "Ngân sách linh hoạt": "2 triệu VND"
+        },
+        "schedule": [
+            "Ngày 1-5: Chuẩn bị nội dung quảng cáo, chụp ảnh sản phẩm và xây dựng kịch bản livestream.",
+            "Ngày 6-10: Chạy chiến dịch quảng cáo đầu tiên trên Shopee với chương trình giảm giá 15%.",
+            "Ngày 11-15: Livestream trên TikTok từ 19:00 - 21:00, tập trung vào sản phẩm hot như 'Búp bê Barbie'.",
+            "Ngày 16-20: Tối ưu lại nội dung quảng cáo và tiếp tục chiến dịch Flash Sale trên Shopee.",
+            "Ngày 21-30: Chạy bài viết quảng cáo mạnh trên các mạng xã hội và triển khai livestream thứ 2."
+        ],
+        "promotion": "Giảm giá 20% cho đơn hàng từ 1 triệu trở lên, áp dụng từ ngày 15-20 hàng tháng.",
+        "expected": {
+            "Doanh thu": "150 triệu VND",
+            "Hoa hồng": "22 triệu VND"
+        },
+        "risks": {
+            "Livestream không thu hút đủ người xem": "Mời KOL quảng bá trước livestream để tăng lượt xem.",
+            "Chương trình giảm giá không đạt hiệu quả": "Chạy quảng cáo nhắm mục tiêu lại (retargeting) trên Facebook."
+        }
+    },
+    {
+        "title": "Kịch bản 5: Ngân sách 30-40 triệu VND",
+        "objective": [
+            "Đầu tư mạnh mẽ vào livestream chuyên sâu và chạy quảng cáo để chiếm lĩnh thị trường.",
+            "Đẩy mạnh nhận diện thương hiệu và chiếm lĩnh thị phần trên Shopee và TikTok."
+        ],
+        "allocation": {
+            "Giảm giá sản phẩm": "10 triệu VND",
+            "Quảng cáo livestream": "10 triệu VND",
+            "Quảng cáo bài viết": "8 triệu VND",
+            "Kịch bản nội dung": "5 triệu VND",
+            "Ngân sách linh hoạt": "7 triệu VND"
+        },
+        "schedule": [
+            "Tuần 1: Chuẩn bị sản phẩm, xây dựng nội dung bài viết và kế hoạch livestream.",
+            "Tuần 2: Thực hiện 2 buổi livestream chuyên sâu trên Shopee và TikTok.",
+            "Tuần 3: Chạy Flash Sale 30% và quảng bá rộng rãi trên các nền tảng xã hội.",
+            "Tuần 4: Tổng kết chiến dịch, đánh giá và tối ưu hóa quảng cáo."
+        ],
+        "promotion": "Flash Sale 30% cho toàn bộ sản phẩm vào ngày 20 và 25 hàng tháng.",
+        "expected": {
+            "Doanh thu": "200 triệu VND",
+            "Hoa hồng": "35 triệu VND"
+        },
+        "risks": {
+            "Nội dung livestream không hấp dẫn": "Tăng thêm các chương trình mini-game, giveaway trong livestream.",
+            "Đối thủ cạnh tranh mạnh": "Thực hiện các chương trình khuyến mãi độc quyền chỉ áp dụng trong livestream."
+        }
+    },
+    {
+        "title": "Kịch bản 6: Ngân sách 40-50 triệu VND",
+        "objective": [
+            "Đẩy mạnh các chiến dịch quảng cáo đa nền tảng và livestream chuyên sâu.",
+            "Tăng cường nhận diện thương hiệu và tối đa hóa doanh số."
+        ],
+        "allocation": {
+            "Giảm giá sản phẩm": "15 triệu VND",
+            "Quảng cáo livestream": "10 triệu VND",
+            "Quảng cáo bài viết": "10 triệu VND",
+            "Kịch bản nội dung": "10 triệu VND",
+            "Ngân sách linh hoạt": "5 triệu VND"
+        },
+        "schedule": [
+            "Tuần 1: Chuẩn bị nội dung bài viết, chụp ảnh sản phẩm và quay video giới thiệu.",
+            "Tuần 2: Livestream 3 lần/tuần trên TikTok và Shopee, với các chương trình giảm giá độc quyền.",
+            "Tuần 3: Chạy chiến dịch Flash Sale lớn vào ngày cuối tuần trên Shopee.",
+            "Tuần 4: Tổng kết chiến dịch, phân tích dữ liệu, và tối ưu hóa chiến lược cho các tháng tiếp theo."
+        ],
+        "promotion": "Giảm giá 30% cho toàn bộ sản phẩm trong tuần lễ khuyến mãi đặc biệt.",
+        "expected": {
+            "Doanh thu": "250 triệu VND",
+            "Hoa hồng": "50 triệu VND"
+        },
+        "risks": {
+            "Chi phí quảng cáo vượt dự kiến": "Giảm bớt số lượng quảng cáo bài viết và tập trung vào các nội dung đang hoạt động tốt.",
+            "Khách hàng không phản hồi tốt với livestream": "Thực hiện khảo sát sau livestream để cải thiện nội dung."
+        }
+    },
+    {
+        "title": "Kịch bản 7: Ngân sách 50-60 triệu VND",
+        "objective": [
+            "Thống lĩnh thị trường sản phẩm búp bê qua các chiến dịch livestream và quảng cáo bài bản.",
+            "Tạo dấu ấn thương hiệu với các chương trình khuyến mãi hấp dẫn."
+        ],
+        "allocation": {
+            "Giảm giá sản phẩm": "20 triệu VND",
+            "Quảng cáo livestream": "15 triệu VND",
+            "Quảng cáo bài viết": "10 triệu VND",
+            "Kịch bản nội dung": "10 triệu VND",
+            "Ngân sách linh hoạt": "5 triệu VND"
+        },
+        "schedule": [
+            "Tuần 1: Khởi động chiến dịch quảng cáo bài viết và đăng tải nội dung giới thiệu sản phẩm.",
+            "Tuần 2: Livestream 4 lần/tuần trên TikTok và Shopee, kết hợp mini-game và quà tặng.",
+            "Tuần 3: Chạy chương trình Flash Sale với thông điệp 'Ưu đãi chỉ trong 24 giờ'.",
+            "Tuần 4: Đánh giá hiệu quả chiến dịch, triển khai các chương trình khuyến mãi cuối tháng."
+        ],
+        "promotion": "Flash Sale 40% áp dụng vào cuối tuần (Thứ 7, Chủ nhật).",
+        "expected": {
+            "Doanh thu": "300 triệu VND",
+            "Hoa hồng": "60 triệu VND"
+        },
+        "risks": {
+            "Chiến dịch Flash Sale không đạt mục tiêu": "Đẩy mạnh retargeting trên Facebook để tiếp cận khách hàng cũ.",
+            "Tương tác thấp trên bài viết quảng cáo": "Sử dụng video thay vì hình ảnh để tăng sự chú ý."
+        }
+    }
+]
