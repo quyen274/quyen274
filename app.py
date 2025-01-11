@@ -252,29 +252,37 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 fig.add_trace(go.Bar(
                     x=visible_data.index,
                     y=visible_data[platform],
-                    name=f"{platform} (Bar)"
+                    name=f"{platform} (Bar)",
+                    marker=dict(color=px.colors.qualitative.Plotly[selected_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
                 ))
 
-        # Add line chart traces (higher than bar chart points)
+        # Add line chart traces (on secondary y-axis)
         for platform in selected_platforms:
             if platform in visible_data.columns:
-                # Tăng giá trị đường để tách ra khỏi cột
-                line_values = visible_data[platform] * 1.2  # Nhân lên 1.2 để tạo khoảng cách
+                # Đường cao hơn cột bằng cách nhân 1.5
+                line_values = visible_data[platform] * 1.5  # Tách biệt hoàn toàn
                 fig.add_trace(go.Scatter(
                     x=visible_data.index,
                     y=line_values,
                     mode='lines+markers',
                     name=f"{platform} (Line)",
-                    line=dict(width=2, dash='solid', color='red'),  # Line style
-                    marker=dict(size=8)  # Marker size
+                    line=dict(width=2, dash='solid'),
+                    marker=dict(size=8),
+                    yaxis='y2'  # Secondary y-axis
                 ))
 
-        # Update layout
+        # Update layout with secondary y-axis
         fig.update_layout(
             barmode='stack',
             title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
             xaxis_title="Thời Gian",
             yaxis_title="Số Lượng Bán",
+            yaxis2=dict(
+                title="Giá Trị Đường (Tách biệt)",
+                overlaying="y",
+                side="right",
+                showgrid=False
+            ),
             xaxis=dict(rangeslider=dict(visible=True), type="date"),
             height=500,
             template="plotly_white",
@@ -301,4 +309,5 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         update_kpis_and_chart()
         current_day_sales = simulate_new_data(current_day_sales)
         time.sleep(5)
+
 
