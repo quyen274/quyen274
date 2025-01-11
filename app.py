@@ -342,10 +342,10 @@ def adjust_time(data):
         data['Time'] = data['Time'] + time_diff
         return data
 
-    current_day_sales = adjust_time(current_day_sales)
-    data = current_day_sales.copy()
+current_day_sales = adjust_time(current_day_sales)
+data = current_day_sales.copy()
 
-    while True:
+while True:
         # Update KPIs and Pie Charts
         update_kpis_and_pies()
 
