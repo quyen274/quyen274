@@ -147,41 +147,45 @@ if page == "Phân Tích Sản Phẩm":
         with cols[i % len(cols)]:
             st.plotly_chart(fig, use_container_width=True)
 
-             if page == "Phân Tích Sản Phẩm":
-                st.title("Định Hướng Chiến Dịch Affiliate")
-                
-                if "current_scenario_index" not in st.session_state:
-                        st.session_state["current_scenario_index"] = 0    
+    
+   
+    
+    # Thêm phần chiến dịch Affiliate dưới biểu đồ
+    if page == "Phân Tích Sản Phẩm":
+        st.title("Định Hướng Chiến Dịch Affiliate")
         
-                # Hiển thị kịch bản hiện tại
-                scenario = scenarios[st.session_state["current_scenario_index"]]
-                st.write(f"### {scenario['title']}")
-                st.markdown(f"**Mục tiêu:** {scenario['objective']}")
-            
-                st.write("**Phân bổ ngân sách:**")
-                for item, cost in scenario['allocation'].items():
-                    st.write(f"- **{item}:** {cost}")
-            
-                st.write("**Lịch trình hoạt động:**")
-                for task in scenario['schedule']:
-                    st.write(f"- {task}")
-            
-                st.write("**Chương trình khuyến mãi:**")
-                st.markdown(scenario['promotion'])
-            
-                st.write("**Kỳ vọng hiệu quả:**")
-                if isinstance(scenario['expected'], dict):
-                    for key, value in scenario['expected'].items():
-                        st.write(f"- **{key}:** {value}")
-                else:
-                    st.markdown(scenario['expected'])
-            
-                # Nút chuyển kịch bản
-                if st.button("Gen kịch bản khác"):
-                    st.session_state["current_scenario_index"] = (
-                        st.session_state["current_scenario_index"] + 1
-                    ) % len(scenarios)
-            
+        if "current_scenario_index" not in st.session_state:
+                st.session_state["current_scenario_index"] = 0    
+
+        # Hiển thị kịch bản hiện tại
+        scenario = scenarios[st.session_state["current_scenario_index"]]
+        st.write(f"### {scenario['title']}")
+        st.markdown(f"**Mục tiêu:** {scenario['objective']}")
+    
+        st.write("**Phân bổ ngân sách:**")
+        for item, cost in scenario['allocation'].items():
+            st.write(f"- **{item}:** {cost}")
+    
+        st.write("**Lịch trình hoạt động:**")
+        for task in scenario['schedule']:
+            st.write(f"- {task}")
+    
+        st.write("**Chương trình khuyến mãi:**")
+        st.markdown(scenario['promotion'])
+    
+        st.write("**Kỳ vọng hiệu quả:**")
+        if isinstance(scenario['expected'], dict):
+            for key, value in scenario['expected'].items():
+                st.write(f"- **{key}:** {value}")
+        else:
+            st.markdown(scenario['expected'])
+    
+        # Nút chuyển kịch bản
+        if st.button("Gen kịch bản khác"):
+            st.session_state["current_scenario_index"] = (
+                st.session_state["current_scenario_index"] + 1
+            ) % len(scenarios)
+    
            
     
 elif page == "Báo Cáo Tự Động Về Doanh Số":
