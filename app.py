@@ -343,3 +343,4 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
         current_day_sales = simulate_new_data(current_day_sales)
         time.sleep(5)
+
