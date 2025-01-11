@@ -223,7 +223,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
         # KPI Calculation
         total_sales = filtered_data['Sales (15 min)'].sum()
-        total_revenue = total_sales * 200  # Giả định giá mỗi sản phẩm là 200 (không triệu)
+        total_revenue = total_sales * 200  # Giả định giá mỗi sản phẩm là 200
         total_cost = total_revenue * 0.6  # Chi phí là 60% doanh thu
         total_profit = total_revenue - total_cost
 
@@ -256,33 +256,25 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     marker=dict(color=px.colors.qualitative.Plotly[selected_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
                 ))
 
-        # Add line chart traces (on secondary y-axis)
+        # Add line chart traces to match bar tops
+        cumulative_data = visible_data.cumsum(axis=1)  # Cộng dồn theo nền tảng
         for platform in selected_platforms:
-            if platform in visible_data.columns:
-                # Đường cao hơn cột bằng cách nhân 1.5
-                line_values = visible_data[platform] * 1.5  # Tách biệt hoàn toàn
+            if platform in cumulative_data.columns:
                 fig.add_trace(go.Scatter(
                     x=visible_data.index,
-                    y=line_values,
+                    y=cumulative_data[platform],  # Giá trị đúng trên đỉnh cột
                     mode='lines+markers',
                     name=f"{platform} (Line)",
-                    line=dict(width=2, dash='solid'),
-                    marker=dict(size=8),
-                    yaxis='y2'  # Secondary y-axis
+                    line=dict(width=2),
+                    marker=dict(size=8)
                 ))
 
-        # Update layout with secondary y-axis
+        # Update layout
         fig.update_layout(
             barmode='stack',
             title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
             xaxis_title="Thời Gian",
             yaxis_title="Số Lượng Bán",
-            yaxis2=dict(
-                title="Giá Trị Đường (Tách biệt)",
-                overlaying="y",
-                side="right",
-                showgrid=False
-            ),
             xaxis=dict(rangeslider=dict(visible=True), type="date"),
             height=500,
             template="plotly_white",
