@@ -243,18 +243,22 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             else:
                 visible_data = pivot_data
         
+            # Ensure platform order is Shopee, TikTok, Lazada
+            ordered_platforms = ["Shopee", "TikTok", "Lazada"]
+            visible_data = visible_data[ordered_platforms]
+        
             # Create Plotly figure
             fig = go.Figure()
         
             # Add stacked bar traces and line traces
-            for platform in selected_platforms:
+            for platform in ordered_platforms:
                 if platform in visible_data.columns:
                     # Add bar for platform
                     fig.add_trace(go.Bar(
                         x=visible_data.index,
                         y=visible_data[platform],
                         name=f"{platform} (Bar)",
-                        marker=dict(color=px.colors.qualitative.Plotly[selected_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
+                        marker=dict(color=px.colors.qualitative.Plotly[ordered_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
                     ))
         
                     # Add line for platform
@@ -265,7 +269,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                         name=f"{platform} (Line)",
                         line=dict(width=2),
                         marker=dict(size=8),
-                        yaxis="y2"  # Sử dụng trục y thứ hai nếu cần
+                        yaxis="y"  # Sử dụng cùng trục Y với cột để tách biệt
                     ))
         
             # Update layout
@@ -273,8 +277,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 barmode='stack',
                 title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
                 xaxis_title="Thời Gian",
-                yaxis=dict(title="Số Lượng Bán (Cột)"),
-                yaxis2=dict(title="Số Lượng Bán (Đường)", overlaying="y", side="right"),  # Thêm trục y2
+                yaxis=dict(title="Số Lượng Bán"),
                 xaxis=dict(rangeslider=dict(visible=True), type="date"),
                 height=500,
                 template="plotly_white",
