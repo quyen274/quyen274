@@ -211,26 +211,12 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         new_df = pd.DataFrame(new_data)
         return pd.concat([data, new_df], ignore_index=True)
 
-    # Initialize variables for real-time simulation
-    current_revenue = 100_000_000  # Starting revenue
-    current_cost = 60_000_000  # Starting cost
-
     # Placeholder for KPI and Charts
     kpi_placeholder = st.empty()
     chart_placeholder = st.empty()
 
     def update_kpis_and_chart():
-        global current_revenue, current_cost
-
-        # Update revenue and cost
-        current_revenue += 150_000  # Increase revenue every 5 seconds
-        current_cost = current_revenue * 0.6  # Cost is 60% of revenue
-        profit = current_revenue - current_cost
-
-        # Display KPIs
-        with kpi_placeholder.container():
-            st.metric("Tổng Doanh Thu", f"{current_revenue / 1e6:.2f} triệu VND", delta="+150K VND")
-            st.metric("Tổng Lợi Nhuận", f"{profit / 1e6:.2f} triệu VND", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f} triệu VND")
+        global current_day_sales
 
         # Filter data for the selected platforms and products
         filtered_data = filter_data(current_day_sales, selected_platforms, selected_products)
@@ -260,8 +246,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 fig.add_trace(go.Bar(
                     x=visible_data.index,
                     y=visible_data[platform],
-                    name=f"{platform} (Bar)",
-                    marker_color="blue"
+                    name=f"{platform} (Bar)"
                 ))
 
         # Add line chart traces
@@ -271,8 +256,8 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     x=visible_cumulative.index,
                     y=visible_cumulative[platform],
                     mode='lines+markers',
-                    name=f"{platform} (Line)",
-                    line=dict(color="red", width=2)
+                    name=f"{platform} (Cumulative)",
+                    line=dict(width=2)
                 ))
 
         fig.update_layout(
@@ -281,13 +266,13 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             xaxis_title="Thời Gian",
             yaxis_title="Doanh Số",
             xaxis=dict(rangeslider=dict(visible=True), type="date"),
-            template="plotly_white",
             height=500,
+            template="plotly_white",
             margin=dict(l=40, r=40, t=50, b=40),
             legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
         )
 
-        # Update the chart in the placeholder
+        # Display the chart
         chart_placeholder.plotly_chart(fig, use_container_width=True)
 
     # Adjust the dataset time
@@ -301,9 +286,10 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     # Adjust time for the current dataset
     current_day_sales = adjust_time(current_day_sales)
 
-    # Simulate real-time updates
+    # Update the chart with new data every 5 seconds
     while True:
         update_kpis_and_chart()
         current_day_sales = simulate_new_data(current_day_sales)
         time.sleep(5)
+
 
