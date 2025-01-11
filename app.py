@@ -344,8 +344,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         area_placeholder1.plotly_chart(fig_area_platform, use_container_width=True)
         area_placeholder2.plotly_chart(fig_area_product, use_container_width=True)
 
-    # Adjust time for the current dataset
-    current_day_sales = adjust_time(current_day_sales)
+    
 
     # Update the chart with new data every 5 seconds
     while True:
