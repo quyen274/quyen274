@@ -257,10 +257,16 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
             # Create Area Chart: Sales by Platform
             platform_df = pd.DataFrame({
-                "Platform": list(sales_by_platform.keys()),
-                "Sales Percentage": list(sales_by_platform.values()),
-                "Time": [pd.Timestamp.now()] * len(sales_by_platform)
-            })
+                    "Platform": list(sales_by_platform.keys()),
+                    "Sales Percentage": list(sales_by_platform.values()),
+                    "Time": [pd.Timestamp.now()] * len(sales_by_platform)
+                })
+        
+            product_df = pd.DataFrame({
+                    "Product": list(sales_by_product.keys()),
+                    "Sales Percentage": list(sales_by_product.values()),
+                    "Time": [pd.Timestamp.now()] * len(sales_by_product)
+                })
         
             fig_area1 = px.area(
                 platform_df,
