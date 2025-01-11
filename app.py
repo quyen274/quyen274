@@ -189,6 +189,7 @@ if page == "Phân Tích Sản Phẩm":
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
+    st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
 
     # Sidebar for user selections
     selected_platforms = st.sidebar.multiselect("Chọn nền tảng:", platforms, default=platforms)
@@ -210,38 +211,20 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         new_df = pd.DataFrame(new_data)
         return pd.concat([data, new_df], ignore_index=True)
 
-    # Prepare data for visualization
-    def prepare_data(data):
-        pivot_data = data.pivot_table(
-            index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
-        )
-        return pivot_data
-
-    # Adjust the dataset time
-    def adjust_time(data):
-        min_time = data['Time'].min()
-        current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
-        time_diff = current_time - min_time
-        data['Time'] = data['Time'] + time_diff
-        return data
-
-    # Initialize placeholders for KPI and charts
-    kpi_placeholder = st.empty()
-    chart_placeholder = st.empty()
-    area_placeholder1 = st.empty()
-    area_placeholder2 = st.empty()
-
     # Initialize variables for real-time simulation
     current_revenue = 100_000_000  # Starting revenue
     current_cost = 60_000_000  # Starting cost
     sales_by_platform = {platform: 100 / len(platforms) for platform in platforms}
     sales_by_product = {product: 100 / len(products) for product in products}
 
-    current_day_sales = adjust_time(current_day_sales)
-    data = current_day_sales.copy()
+    # Placeholder for KPI and Area charts
+    kpi_placeholder = st.empty()
+    area_placeholder1 = st.empty()
+    area_placeholder2 = st.empty()
+    chart_placeholder = st.empty()
 
-    # Function to update KPIs and area charts
-    def update_kpis_and_area_charts():
+    # Function to update KPIs and Area charts
+    def update_kpis_and_areas():
         global current_revenue, current_cost, sales_by_platform, sales_by_product
 
         # Update revenue and cost
@@ -257,28 +240,26 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         # Update sales distribution for platforms
         platform_total = sum(sales_by_platform.values())
         for platform in sales_by_platform:
-            sales_by_platform[platform] += np.random.uniform(0.1, 2.0)
+            sales_by_platform[platform] += np.random.uniform(1, 5) * np.random.choice([-1, 1])
         platform_total_new = sum(sales_by_platform.values())
         for platform in sales_by_platform:
-            sales_by_platform[platform] = (sales_by_platform[platform] / platform_total_new) * 100
+            sales_by_platform[platform] = max(0, (sales_by_platform[platform] / platform_total_new) * 100)
 
         # Update sales distribution for products
         product_total = sum(sales_by_product.values())
         for product in sales_by_product:
-            sales_by_product[product] += np.random.uniform(0.5, 1.0)
+            sales_by_product[product] += np.random.uniform(1, 5) * np.random.choice([-1, 1])
         product_total_new = sum(sales_by_product.values())
         for product in sales_by_product:
-            sales_by_product[product] = (sales_by_product[product] / product_total_new) * 100
+            sales_by_product[product] = max(0, (sales_by_product[product] / product_total_new) * 100)
 
         # Create Area Chart: Sales by Platform
         platform_labels = list(sales_by_platform.keys())
         platform_values = list(sales_by_platform.values())
-        platform_timestamps = [pd.Timestamp.now()] * len(platform_labels)
-
         platform_df = pd.DataFrame({
-            "Time": platform_timestamps,
             "Platform": platform_labels,
-            "Sales Percentage": platform_values
+            "Sales Percentage": platform_values,
+            "Time": [pd.Timestamp.now()] * len(platform_labels)
         })
 
         fig_area1 = px.area(
@@ -288,17 +269,14 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             color="Platform",
             title="Phân Phối Doanh Số Theo Sàn (Cập Nhật Liên Tục)",
         )
-        fig_area1.update_layout(transition_duration=500)
 
         # Create Area Chart: Sales by Product
         product_labels = list(sales_by_product.keys())
         product_values = list(sales_by_product.values())
-        product_timestamps = [pd.Timestamp.now()] * len(product_labels)
-
         product_df = pd.DataFrame({
-            "Time": product_timestamps,
             "Product": product_labels,
-            "Sales Percentage": product_values
+            "Sales Percentage": product_values,
+            "Time": [pd.Timestamp.now()] * len(product_labels)
         })
 
         fig_area2 = px.area(
@@ -308,18 +286,35 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             color="Product",
             title="Phân Phối Doanh Số Theo Loại Sản Phẩm (Cập Nhật Liên Tục)",
         )
-        fig_area2.update_layout(transition_duration=500)
 
-        # Update the Area Charts directly
+        # Update the Area Charts
         with area_placeholder1.container():
             st.plotly_chart(fig_area1, use_container_width=True)
+
         with area_placeholder2.container():
             st.plotly_chart(fig_area2, use_container_width=True)
 
-    # Real-time Simulation Loop
+    # Prepare data for visualization
+    def prepare_data(data):
+        pivot_data = data.pivot_table(
+            index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
+        )
+        return pivot_data
+
+    # Adjust the dataset time
+    def adjust_time(data):
+        min_time = data['Time'].min()
+        current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
+        time_diff = current_time - min_time
+        data['Time'] = data['Time'] + time_diff
+        return data
+
+    current_day_sales = adjust_time(current_day_sales)
+    data = current_day_sales.copy()
+
     while True:
         # Update KPIs and Area Charts
-        update_kpis_and_area_charts()
+        update_kpis_and_areas()
 
         # Filter data based on user selections
         filtered_data = filter_data(data, selected_platforms, selected_products)
@@ -333,7 +328,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         else:
             visible_data = pivot_data
 
-        # Create Plotly figure
+        # Create Plotly figure for Bar and Line Chart
         fig = go.Figure()
 
         # Add stacked bar traces
