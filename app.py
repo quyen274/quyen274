@@ -223,18 +223,18 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     area_placeholder2 = st.empty()
     chart_placeholder = st.empty()
 
-        def update_kpis_and_pies():
-                global current_revenue, current_cost, sales_by_platform, sales_by_product
+    def update_kpis_and_pies():
+        global current_revenue, current_cost, sales_by_platform, sales_by_product
         
-                # Update revenue and cost
-                current_revenue += 150_000  # Increase revenue every 5 seconds
-                current_cost = current_revenue * 0.6  # Cost is 60% of revenue
-                profit = current_revenue - current_cost
+        # Update revenue and cost
+        current_revenue += 150_000  # Increase revenue every 5 seconds
+        current_cost = current_revenue * 0.6  # Cost is 60% of revenue
+        profit = current_revenue - current_cost
         
-                # Display KPIs
-                with kpi_placeholder.container():
-                    st.metric("Tổng Doanh Thu", f"${current_revenue / 1e6:.2f}M", delta=f"+0.15M")
-                    st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
+        # Display KPIs
+        with kpi_placeholder.container():
+        st.metric("Tổng Doanh Thu", f"${current_revenue / 1e6:.2f}M", delta=f"+0.15M")
+        st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
 
 
     # Initialize simulation data
