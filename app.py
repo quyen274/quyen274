@@ -223,84 +223,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     area_placeholder2 = st.empty()
     chart_placeholder = st.empty()
 # Function to update KPIs and Area charts
-    def update_kpis_and_areas():
-            global current_revenue, current_cost, sales_by_platform, sales_by_product
-        
-            # Update revenue and cost
-            current_revenue += 150_000  # Increase revenue every 5 seconds
-            current_cost = current_revenue * 0.6  # Cost is 60% of revenue
-            profit = current_revenue - current_cost
-        
-            # Display KPIs
-            with kpi_placeholder.container():
-                st.metric("Tổng Doanh Thu", f"${current_revenue / 1e6:.2f}M", delta=f"+0.15M")
-                st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
-        
-            # Update sales distribution for platforms
-            # Cập nhật sales_by_platform và sales_by_product
-                for platform in sales_by_platform:
-                    sales_by_platform[platform] += np.random.uniform(-2, 5)  # Random fluctuation
-                sales_by_platform = {k: max(v, 0) for k, v in sales_by_platform.items()}  # Ensure non-negative
-                
-                for product in sales_by_product:
-                    sales_by_product[product] += np.random.uniform(-2, 5)  # Random fluctuation
-                sales_by_product = {k: max(v, 0) for k, v in sales_by_product.items()}  # Ensure non-negative
-                
-                # Normalize data to sum to 100%
-                platform_total = sum(sales_by_platform.values())
-                if platform_total > 0:
-                    sales_by_platform = {k: (v / platform_total) * 100 for k, v in sales_by_platform.items()}
-                
-                product_total = sum(sales_by_product.values())
-                if product_total > 0:
-                    sales_by_product = {k: (v / product_total) * 100 for k, v in sales_by_product.items()}
-
-            # Create Area Chart: Sales by Platform
-            platform_df = pd.DataFrame({
-                    "Platform": list(sales_by_platform.keys()),
-                    "Sales Percentage": list(sales_by_platform.values()),
-                    "Time": [pd.Timestamp.now()] * len(sales_by_platform)
-                })
-        
-            product_df = pd.DataFrame({
-                    "Product": list(sales_by_product.keys()),
-                    "Sales Percentage": list(sales_by_product.values()),
-                    "Time": [pd.Timestamp.now()] * len(sales_by_product)
-                })
-        
-            fig_area1 = px.area(
-                platform_df,
-                x="Time",
-                y="Sales Percentage",
-                color="Platform",
-                title="Phân Phối Doanh Số Theo Sàn (Cập Nhật Liên Tục)",
-                color_discrete_sequence=px.colors.qualitative.Bold  # Chọn màu cố định
-            )
-        
-            # Create Area Chart: Sales by Product
-            product_df = pd.DataFrame({
-                "Product": list(sales_by_product.keys()),
-                "Sales Percentage": list(sales_by_product.values()),
-                "Time": [pd.Timestamp.now()] * len(sales_by_product)
-            })
-        
-            fig_area2 = px.area(
-                product_df,
-                x="Time",
-                y="Sales Percentage",
-                color="Product",
-                title="Phân Phối Doanh Số Theo Loại Sản Phẩm (Cập Nhật Liên Tục)",
-                color_discrete_sequence=px.colors.qualitative.Pastel  # Chọn màu cố định
-            )
-        
-            # Update the Area Charts
-            with area_placeholder1.container():
-                st.plotly_chart(fig_area1, use_container_width=True)
-        
-            with area_placeholder2.container():
-                st.plotly_chart(fig_area2, use_container_width=True)
-
-
 
     # Prepare data for visualization
     def prepare_data(data):
@@ -319,7 +241,71 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
     current_day_sales = adjust_time(current_day_sales)
     data = current_day_sales.copy()
-
+    def normalize_data(data_dict):
+        total = sum(data_dict.values())
+        if total > 0:
+                data_dict = {k: (v / total) * 100 for k, v in data_dict.items()}
+        return data_dict
+    def update_kpis_and_areas():
+            global current_revenue, current_cost, sales_by_platform, sales_by_product
+        
+            # Update revenue and cost
+            current_revenue += 150_000  # Increase revenue every 5 seconds
+            current_cost = current_revenue * 0.6  # Cost is 60% of revenue
+            profit = current_revenue - current_cost
+        
+            # Display KPIs
+            with kpi_placeholder.container():
+                st.metric("Tổng Doanh Thu", f"${current_revenue / 1e6:.2f}M", delta=f"+0.15M")
+                st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
+        
+            # Update sales distribution for platforms and normalize
+            for platform in sales_by_platform:
+                sales_by_platform[platform] += np.random.uniform(-2, 5)  # Random fluctuation
+            sales_by_platform = normalize_data(sales_by_platform)
+        
+            # Update sales distribution for products and normalize
+            for product in sales_by_product:
+                sales_by_product[product] += np.random.uniform(-2, 5)  # Random fluctuation
+            sales_by_product = normalize_data(sales_by_product)
+        
+            # Create Area Chart: Sales by Platform
+            platform_df = pd.DataFrame({
+                "Platform": list(sales_by_platform.keys()),
+                "Sales Percentage": list(sales_by_platform.values()),
+                "Time": [pd.Timestamp.now()] * len(sales_by_platform)
+            })
+        
+            fig_area1 = px.area(
+                platform_df,
+                x="Time",
+                y="Sales Percentage",
+                color="Platform",
+                title="Phân Phối Doanh Số Theo Sàn (Cập Nhật Liên Tục)"
+            )
+        
+            # Create Area Chart: Sales by Product
+            product_df = pd.DataFrame({
+                "Product": list(sales_by_product.keys()),
+                "Sales Percentage": list(sales_by_product.values()),
+                "Time": [pd.Timestamp.now()] * len(sales_by_product)
+            })
+        
+            fig_area2 = px.area(
+                product_df,
+                x="Time",
+                y="Sales Percentage",
+                color="Product",
+                title="Phân Phối Doanh Số Theo Loại Sản Phẩm (Cập Nhật Liên Tục)"
+            )
+        
+            # Update the Area Charts
+            with area_placeholder1.container():
+                st.plotly_chart(fig_area1, use_container_width=True)
+        
+            with area_placeholder2.container():
+                st.plotly_chart(fig_area2, use_container_width=True)
+       
     while True:
         # Update KPIs and Area Charts
         update_kpis_and_areas()
