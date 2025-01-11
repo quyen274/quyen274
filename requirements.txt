@@ -1,2 +1,12 @@
-
+streamlit
+pandas
+numpy
+matplotlib
 scikit-learn
+beautifulsoup4
+requests
+snscrape
+streamlit-option-menu
+selenium
+playwright
+plotly
