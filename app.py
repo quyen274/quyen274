@@ -235,16 +235,21 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         # Filter data for the selected platforms and products
         filtered_data = filter_data(current_day_sales, selected_platforms, selected_products)
 
-        # Prepare data for the bar chart
+        # Prepare data for the bar and line chart
         pivot_data = filtered_data.pivot_table(
             index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
         )
 
+        # Calculate cumulative sales for the line chart
+        cumulative_data = pivot_data.cumsum()
+
         # Select visible data based on zoom level
         if len(pivot_data) > zoom_level:
             visible_data = pivot_data.iloc[-zoom_level:]
+            visible_cumulative = cumulative_data.iloc[-zoom_level:]
         else:
             visible_data = pivot_data
+            visible_cumulative = cumulative_data
 
         # Create Plotly figure
         fig = go.Figure()
@@ -255,7 +260,19 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 fig.add_trace(go.Bar(
                     x=visible_data.index,
                     y=visible_data[platform],
-                    name=platform
+                    name=f"{platform} (Bar)",
+                    marker_color="blue"
+                ))
+
+        # Add line chart traces
+        for platform in selected_platforms:
+            if platform in visible_cumulative.columns:
+                fig.add_trace(go.Scatter(
+                    x=visible_cumulative.index,
+                    y=visible_cumulative[platform],
+                    mode='lines+markers',
+                    name=f"{platform} (Line)",
+                    line=dict(color="red", width=2)
                 ))
 
         fig.update_layout(
@@ -264,7 +281,10 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             xaxis_title="Thời Gian",
             yaxis_title="Doanh Số",
             xaxis=dict(rangeslider=dict(visible=True), type="date"),
-            template="plotly_white"
+            template="plotly_white",
+            height=500,
+            margin=dict(l=40, r=40, t=50, b=40),
+            legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
         )
 
         # Update the chart in the placeholder
