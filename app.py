@@ -189,18 +189,6 @@ if page == "Phân Tích Sản Phẩm":
            
     
 elif page == "Báo Cáo Tự Động Về Doanh Số":
-        current_day_sales = pd.read_csv('current_day_sales.csv')
-        current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
-        
-        daily_sales = pd.read_csv('daily_sales.csv')
-        daily_sales['Date'] = pd.to_datetime(daily_sales['Date'])
-        
-        platforms = current_day_sales['Platform'].unique()
-        products = current_day_sales['Product'].unique()
-        
-        st.set_page_config(page_title="Báo Cáo Tự Động Về Doanh Số", layout="wide")
-        
-        # Sidebar filters
         selected_platforms = st.sidebar.multiselect("Chọn nền tảng:", platforms, default=platforms)
         selected_products = st.sidebar.multiselect("Chọn loại sản phẩm:", products, default=products)
         zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 10, 50, 20)
@@ -342,4 +330,5 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         
             current_day_sales = simulate_new_data(current_day_sales)
             time.sleep(5)
+
 
