@@ -223,14 +223,14 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
         # KPI Calculation
         total_sales = filtered_data['Sales (15 min)'].sum()
-        total_revenue = total_sales * 200  # Giả định giá mỗi sản phẩm là 200 VND (triệu VND)
+        total_revenue = total_sales * 200  # Giả định giá mỗi sản phẩm là 200 (không triệu)
         total_cost = total_revenue * 0.6  # Chi phí là 60% doanh thu
         total_profit = total_revenue - total_cost
 
         # Display KPIs
         with kpi_placeholder.container():
-            st.metric("Tổng Doanh Thu", f"{total_revenue:,.0f} triệu VND", delta=f"+{total_sales:,} sản phẩm")
-            st.metric("Tổng Lợi Nhuận", f"{total_profit:,.0f} triệu VND", delta=f"+{(150 - 90):,.0f} triệu VND")
+            st.metric("Tổng Doanh Thu", f"{total_revenue:,.0f}", delta=f"+{total_sales:,} sản phẩm")
+            st.metric("Tổng Lợi Nhuận", f"{total_profit:,.0f}", delta=f"+{(total_profit):,.0f}")
 
         # Prepare data for the bar and line chart
         pivot_data = filtered_data.pivot_table(
@@ -255,31 +255,26 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     name=f"{platform} (Bar)"
                 ))
 
-        # Add line chart traces (matching bar chart points)
+        # Add line chart traces (higher than bar chart points)
         for platform in selected_platforms:
             if platform in visible_data.columns:
+                # Tăng giá trị đường để tách ra khỏi cột
+                line_values = visible_data[platform] * 1.2  # Nhân lên 1.2 để tạo khoảng cách
                 fig.add_trace(go.Scatter(
                     x=visible_data.index,
-                    y=visible_data[platform],
+                    y=line_values,
                     mode='lines+markers',
                     name=f"{platform} (Line)",
-                    line=dict(width=2, dash='solid'),  # Line style
-                    marker=dict(size=8),  # Marker size
-                    yaxis='y2'  # Secondary y-axis
+                    line=dict(width=2, dash='solid', color='red'),  # Line style
+                    marker=dict(size=8)  # Marker size
                 ))
 
-        # Update layout with secondary y-axis
+        # Update layout
         fig.update_layout(
             barmode='stack',
             title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
             xaxis_title="Thời Gian",
             yaxis_title="Số Lượng Bán",
-            yaxis2=dict(
-                title="Số Lượng Bán (Line Chart)",
-                overlaying="y",
-                side="right",
-                showgrid=False
-            ),
             xaxis=dict(rangeslider=dict(visible=True), type="date"),
             height=500,
             template="plotly_white",
@@ -306,5 +301,4 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         update_kpis_and_chart()
         current_day_sales = simulate_new_data(current_day_sales)
         time.sleep(5)
-
 
