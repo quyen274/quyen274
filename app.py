@@ -341,9 +341,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         update_area_charts()
         update_stacked_chart()
 
-        data = simulate_new_data(data)
         current_day_sales = simulate_new_data(current_day_sales)
 
         time.sleep(5)
-
-
