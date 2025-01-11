@@ -237,22 +237,24 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
         
             # Update sales distribution for platforms
-            for platform in sales_by_platform:
-                sales_by_platform[platform] += np.random.uniform(-1, 5)  # Random fluctuation
-            sales_by_platform = {k: max(v, 0) for k, v in sales_by_platform.items()}  # Ensure non-negative
-        
-            # Update sales distribution for products
-            for product in sales_by_product:
-                sales_by_product[product] += np.random.uniform(-1, 5)  # Random fluctuation
-            sales_by_product = {k: max(v, 0) for k, v in sales_by_product.items()}  # Ensure non-negative
-        
-            # Normalize sales to sum to 100%
-            platform_total = sum(sales_by_platform.values())
-            sales_by_platform = {k: v / platform_total * 100 for k, v in sales_by_platform.items()}
-        
-            product_total = sum(sales_by_product.values())
-            sales_by_product = {k: v / product_total * 100 for k, v in sales_by_product.items()}
-        
+            # Cập nhật sales_by_platform và sales_by_product
+                for platform in sales_by_platform:
+                    sales_by_platform[platform] += np.random.uniform(-2, 5)  # Random fluctuation
+                sales_by_platform = {k: max(v, 0) for k, v in sales_by_platform.items()}  # Ensure non-negative
+                
+                for product in sales_by_product:
+                    sales_by_product[product] += np.random.uniform(-2, 5)  # Random fluctuation
+                sales_by_product = {k: max(v, 0) for k, v in sales_by_product.items()}  # Ensure non-negative
+                
+                # Normalize data to sum to 100%
+                platform_total = sum(sales_by_platform.values())
+                if platform_total > 0:
+                    sales_by_platform = {k: (v / platform_total) * 100 for k, v in sales_by_platform.items()}
+                
+                product_total = sum(sales_by_product.values())
+                if product_total > 0:
+                    sales_by_product = {k: (v / product_total) * 100 for k, v in sales_by_product.items()}
+
             # Create Area Chart: Sales by Platform
             platform_df = pd.DataFrame({
                 "Platform": list(sales_by_platform.keys()),
