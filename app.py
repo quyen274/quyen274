@@ -222,10 +222,8 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     area_placeholder1 = st.empty()
     area_placeholder2 = st.empty()
     chart_placeholder = st.empty()
-
-    # Function to update KPIs and Area charts
-   # Function to update KPIs and Area charts
-        def update_kpis_and_areas():
+# Function to update KPIs and Area charts
+    def update_kpis_and_areas():
             global current_revenue, current_cost, sales_by_platform, sales_by_product
         
             # Update revenue and cost
@@ -293,6 +291,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         
             with area_placeholder2.container():
                 st.plotly_chart(fig_area2, use_container_width=True)
+
 
 
     # Prepare data for visualization
