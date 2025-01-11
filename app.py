@@ -195,66 +195,74 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     selected_platforms = st.sidebar.multiselect("Chọn nền tảng:", platforms, default=platforms)
     selected_products = st.sidebar.multiselect("Chọn loại sản phẩm:", products, default=products)
 
-    # Biểu đồ miền: Phân phối doanh số theo thời gian (Nền tảng và sản phẩm)
-    st.write("### Phân phối doanh số theo thời gian")
+    # Placeholder for dynamic charts
+    area_placeholder1 = st.empty()
+    area_placeholder2 = st.empty()
+    chart_placeholder = st.empty()
 
-    # Prepare data for area chart
-    sales_by_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
-    sales_by_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
+    # Prepare initial data for area charts
+    def calculate_percentage(data, group_by):
+        total_sales_by_date = data.groupby('Date')['Daily Sales'].sum().reset_index()
+        grouped_data = data.groupby(['Date', group_by])['Daily Sales'].sum().reset_index()
+        grouped_data = grouped_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
+        grouped_data['Percentage'] = (grouped_data['Daily Sales'] / grouped_data['Daily Sales_Total']) * 100
+        return grouped_data
 
-    # Convert to percentage
-    total_sales_by_date = daily_sales.groupby('Date')['Daily Sales'].sum().reset_index()
-    sales_by_platform = sales_by_platform.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
-    sales_by_platform['Percentage'] = (sales_by_platform['Daily Sales'] / sales_by_platform['Daily Sales_Total']) * 100
+    sales_by_platform = calculate_percentage(daily_sales, 'Platform')
+    sales_by_product = calculate_percentage(daily_sales, 'Product')
 
-    sales_by_product = sales_by_product.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
-    sales_by_product['Percentage'] = (sales_by_product['Daily Sales'] / sales_by_product['Daily Sales_Total']) * 100
+    # Simulate new data and update area charts
+    def simulate_and_update_area():
+        global sales_by_platform, sales_by_product
 
-    # Create area chart for platforms
-    fig_area_platform = go.Figure()
-    for platform in platforms:
-        platform_data = sales_by_platform[sales_by_platform['Platform'] == platform]
-        fig_area_platform.add_trace(go.Scatter(
-            x=platform_data['Date'],
-            y=platform_data['Percentage'],
-            stackgroup='one',
-            name=platform
-        ))
+        # Simulate new data by adding slight variation to percentages
+        for group_data in [sales_by_platform, sales_by_product]:
+            group_data['Percentage'] += np.random.uniform(-3, 3, group_data['Percentage'].shape[0])
+            group_data['Percentage'] = group_data['Percentage'].clip(lower=0, upper=100)
 
-    fig_area_platform.update_layout(
-        title="Tỷ lệ doanh số theo nền tảng (Thời gian)",
-        xaxis_title="Thời gian",
-        yaxis_title="Tỷ lệ (%)",
-        height=400,
-        template="plotly_white"
-    )
+        # Update area chart for platforms
+        fig_area_platform = go.Figure()
+        for platform in platforms:
+            platform_data = sales_by_platform[sales_by_platform['Platform'] == platform]
+            fig_area_platform.add_trace(go.Scatter(
+                x=platform_data['Date'],
+                y=platform_data['Percentage'],
+                stackgroup='one',
+                name=platform
+            ))
 
-    # Create area chart for products
-    fig_area_product = go.Figure()
-    for product in products:
-        product_data = sales_by_product[sales_by_product['Product'] == product]
-        fig_area_product.add_trace(go.Scatter(
-            x=product_data['Date'],
-            y=product_data['Percentage'],
-            stackgroup='one',
-            name=product
-        ))
+        fig_area_platform.update_layout(
+            title="Tỷ lệ doanh số theo nền tảng (Thời gian)",
+            xaxis_title="Thời gian",
+            yaxis_title="Tỷ lệ (%)",
+            height=400,
+            template="plotly_white"
+        )
 
-    fig_area_product.update_layout(
-        title="Tỷ lệ doanh số theo loại sản phẩm (Thời gian)",
-        xaxis_title="Thời gian",
-        yaxis_title="Tỷ lệ (%)",
-        height=400,
-        template="plotly_white"
-    )
+        # Update area chart for products
+        fig_area_product = go.Figure()
+        for product in products:
+            product_data = sales_by_product[sales_by_product['Product'] == product]
+            fig_area_product.add_trace(go.Scatter(
+                x=product_data['Date'],
+                y=product_data['Percentage'],
+                stackgroup='one',
+                name=product
+            ))
 
-    # Display area charts
-    st.plotly_chart(fig_area_platform, use_container_width=True)
-    st.plotly_chart(fig_area_product, use_container_width=True)
+        fig_area_product.update_layout(
+            title="Tỷ lệ doanh số theo loại sản phẩm (Thời gian)",
+            xaxis_title="Thời gian",
+            yaxis_title="Tỷ lệ (%)",
+            height=400,
+            template="plotly_white"
+        )
 
-    # Biểu đồ cột và đường (giữ nguyên tự động cập nhật)
-    st.write("### Doanh số bán hàng tự động cập nhật")
+        # Display updated charts
+        area_placeholder1.plotly_chart(fig_area_platform, use_container_width=True)
+        area_placeholder2.plotly_chart(fig_area_product, use_container_width=True)
 
+    # Simulate and update stacked bar and line chart
     def prepare_data(data):
         pivot_data = data.pivot_table(
             index='Date', columns='Platform', values='Daily Sales', aggfunc='sum', fill_value=0
@@ -263,23 +271,34 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
     filtered_data = prepare_data(daily_sales)
 
-    fig_line = go.Figure()
+    def update_bar_and_line():
+        global filtered_data
+        filtered_data += np.random.uniform(1, 3, filtered_data.shape)
 
-    for platform in platforms:
-        if platform in filtered_data.columns:
-            fig_line.add_trace(go.Bar(
-                x=filtered_data.index,
-                y=filtered_data[platform],
-                name=f"{platform}"
-            ))
+        fig_line = go.Figure()
 
-    fig_line.update_layout(
-        barmode='stack',
-        title="Doanh số theo thời gian",
-        xaxis_title="Thời gian",
-        yaxis_title="Doanh số",
-        height=400,
-        template="plotly_white"
-    )
+        for platform in platforms:
+            if platform in filtered_data.columns:
+                fig_line.add_trace(go.Bar(
+                    x=filtered_data.index,
+                    y=filtered_data[platform],
+                    name=f"{platform}"
+                ))
 
-    st.plotly_chart(fig_line, use_container_width=True)
+        fig_line.update_layout(
+            barmode='stack',
+            title="Doanh số theo thời gian",
+            xaxis_title="Thời gian",
+            yaxis_title="Doanh số",
+            height=400,
+            template="plotly_white"
+        )
+
+        chart_placeholder.plotly_chart(fig_line, use_container_width=True)
+
+    # Initial and continuous updates
+    while True:
+        simulate_and_update_area()
+        update_bar_and_line()
+        time.sleep(5)
+
