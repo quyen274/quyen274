@@ -195,7 +195,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     # Placeholder for charts
     area_placeholder1 = st.empty()
     area_placeholder2 = st.empty()
-    stacked_placeholder = st.empty()
 
     # Initialize simulation data
     simulation_data_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
@@ -210,51 +209,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
     simulation_data_platform = normalize_data(simulation_data_platform, 'Platform')
     simulation_data_product = normalize_data(simulation_data_product, 'Product')
-
-    # Simulate and update stacked bar and line chart
-    def prepare_data(data):
-        pivot_data = data.pivot_table(
-            index='Date', columns='Platform', values='Daily Sales', aggfunc='sum', fill_value=0
-        )
-        return pivot_data
-
-    filtered_data = prepare_data(daily_sales)
-
-    def simulate_and_update_stacked():
-        global filtered_data
-        filtered_data += np.random.uniform(1, 3, filtered_data.shape)
-
-        fig_line = go.Figure()
-
-        for platform in platforms:
-            if platform in filtered_data.columns:
-                fig_line.add_trace(go.Bar(
-                    x=filtered_data.index,
-                    y=filtered_data[platform],
-                    name=f"{platform}"
-                ))
-
-        # Add line traces
-        cumulative_data = filtered_data.cumsum(axis=1)
-        for platform in platforms:
-            if platform in cumulative_data.columns:
-                fig_line.add_trace(go.Scatter(
-                    x=filtered_data.index,
-                    y=cumulative_data[platform],
-                    mode='lines+markers',
-                    name=f"{platform} (Đường)"
-                ))
-
-        fig_line.update_layout(
-            barmode='stack',
-            title="Biểu Đồ Doanh Số Theo Thời Gian",
-            xaxis_title="Thời Gian",
-            yaxis_title="Doanh Số",
-            height=400,
-            template="plotly_white"
-        )
-
-        stacked_placeholder.plotly_chart(fig_line, use_container_width=True)
 
     def simulate_and_update_area():
         global simulation_data_platform, simulation_data_product
@@ -338,8 +292,8 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
     # Continuous updates
     while True:
-        simulate_and_update_stacked()
         simulate_and_update_area()
         time.sleep(5)
+
 
 
