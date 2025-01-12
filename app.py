@@ -212,92 +212,28 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         new_df = pd.DataFrame(new_data)
         return pd.concat([data, new_df], ignore_index=True)
 
+    # Khởi tạo dữ liệu mô phỏng ban đầu
+    simulation_data_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
+    simulation_data_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
+
+    # Hàm chuẩn hóa dữ liệu để tính tỷ lệ phần trăm
+    def normalize_data(grouped_data, group_by):
+        total_sales_by_date = grouped_data.groupby('Date')['Daily Sales'].sum().reset_index()
+        grouped_data = grouped_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
+        grouped_data['Percentage'] = (grouped_data['Daily Sales'] / grouped_data['Daily Sales_Total']) * 100
+        return grouped_data
+
+    # Chuẩn hóa dữ liệu
+    simulation_data_platform = normalize_data(simulation_data_platform, 'Platform')
+    simulation_data_product = normalize_data(simulation_data_product, 'Product')
+
     # KPI and Chart Placeholders
     kpi_placeholder = st.empty()
     chart_placeholder = st.empty()
     area_placeholder1 = st.empty()
     area_placeholder2 = st.empty()
 
-    # Hàm chuẩn hóa dữ liệu để đảm bảo tổng là 100%
-    def normalize_filtered_data(grouped_data, group_by, filter_groups):
-        filtered_data = grouped_data[grouped_data[group_by].isin(filter_groups)].copy()
-        total_sales_by_date = filtered_data.groupby('Date')['Daily Sales'].sum().reset_index()
-        filtered_data = filtered_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
-        filtered_data['Percentage'] = (filtered_data['Daily Sales'] / filtered_data['Daily Sales_Total']) * 100
-        return filtered_data
-
-    # Hàm cập nhật biểu đồ KPI và biểu đồ cột
-    def update_kpis_and_chart():
-        global current_day_sales
-
-        # Filter data for the selected platforms and products
-        filtered_data = filter_data(current_day_sales, selected_platforms, selected_products)
-
-        # KPI Calculation
-        total_sales = filtered_data['Sales (15 min)'].sum()
-        total_revenue = total_sales * 200  # Giả định giá mỗi sản phẩm là 200
-        total_cost = total_revenue * 0.6  # Chi phí là 60% doanh thu
-        total_profit = total_revenue - total_cost
-
-        # Display KPIs
-        with kpi_placeholder.container():
-            st.metric("Tổng Doanh Thu", f"{total_revenue:,.0f}", delta=f"+{total_sales:,} sản phẩm")
-            st.metric("Tổng Lợi Nhuận", f"{total_profit:,.0f}", delta=f"+{(total_profit):,.0f}")
-
-        # Prepare data for the bar and line chart
-        pivot_data = filtered_data.pivot_table(
-            index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
-        )
-
-        # Select visible data based on zoom level
-        if len(pivot_data) > zoom_level:
-            visible_data = pivot_data.iloc[-zoom_level:]
-        else:
-            visible_data = pivot_data
-
-        # Create Plotly figure
-        fig = go.Figure()
-
-        # Add stacked bar traces
-        for platform in selected_platforms:
-            if platform in visible_data.columns:
-                fig.add_trace(go.Bar(
-                    x=visible_data.index,
-                    y=visible_data[platform],
-                    name=f"{platform} (Bar)",
-                    marker=dict(color=px.colors.qualitative.Plotly[selected_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
-                ))
-
-        # Add line chart traces to match bar tops
-        for platform in selected_platforms:
-            if platform in visible_data.columns:
-                platform_top = visible_data[selected_platforms[:selected_platforms.index(platform) + 1]].sum(axis=1)
-                fig.add_trace(go.Scatter(
-                    x=visible_data.index,
-                    y=platform_top,  # Giá trị đúng trên đỉnh cột
-                    mode='lines+markers',
-                    name=f"{platform} (Line)",
-                    line=dict(width=2),
-                    marker=dict(size=8)
-                ))
-
-        # Update layout
-        fig.update_layout(
-            barmode='stack',
-            title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
-            xaxis_title="Thời Gian",
-            yaxis_title="Số Lượng Bán",
-            xaxis=dict(rangeslider=dict(visible=True), type="date"),
-            height=500,
-            template="plotly_white",
-            margin=dict(l=40, r=40, t=50, b=40),
-            legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
-        )
-
-        # Display the chart
-        chart_placeholder.plotly_chart(fig, use_container_width=True)
-
-    # Hàm cập nhật biểu đồ miền
+    # Cập nhật biểu đồ miền
     def update_area_charts():
         if apply_filters_to_area_charts:
             # Chuẩn hóa lại dữ liệu nền tảng và sản phẩm khi áp dụng bộ lọc
@@ -358,18 +294,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         area_placeholder1.plotly_chart(fig_area_platform, use_container_width=True)
         area_placeholder2.plotly_chart(fig_area_product, use_container_width=True)
 
-    # Adjust the dataset time
-    def adjust_time(data):
-        min_time = data['Time'].min()
-        current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
-        time_diff = current_time - min_time
-        data['Time'] = data['Time'] + time_diff
-        return data
-
-    # Adjust time for the current dataset
-    current_day_sales = adjust_time(current_day_sales)
-
-    # Update the chart with new data every 5 seconds
+    # Update area charts and bar chart every 5 seconds
     while True:
         update_kpis_and_chart()
         update_area_charts()
