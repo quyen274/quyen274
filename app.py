@@ -214,9 +214,23 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     # KPI and Chart Placeholders
     kpi_placeholder = st.empty()
     chart_placeholder = st.empty()
+    area_placeholder1 = st.empty()
+    area_placeholder2 = st.empty()
 
-    def update_kpis_and_chart():
-        global current_day_sales
+    # Normalize data for area charts
+    def normalize_data(grouped_data, group_by):
+        total_sales_by_date = grouped_data.groupby('Date')['Daily Sales'].sum().reset_index()
+        grouped_data = grouped_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
+        grouped_data['Percentage'] = (grouped_data['Daily Sales'] / grouped_data['Daily Sales_Total']) * 100
+        return grouped_data
+
+    simulation_data_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
+    simulation_data_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
+    simulation_data_platform = normalize_data(simulation_data_platform, 'Platform')
+    simulation_data_product = normalize_data(simulation_data_product, 'Product')
+
+    def update_kpis_and_charts():
+        global current_day_sales, simulation_data_platform, simulation_data_product
 
         # Filter data for the selected platforms and products
         filtered_data = filter_data(current_day_sales, selected_platforms, selected_products)
@@ -243,33 +257,26 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         else:
             visible_data = pivot_data
 
-        # Create Plotly figure
+        # Create bar and line chart
         fig = go.Figure()
-
-        # Add stacked bar traces
         for platform in selected_platforms:
             if platform in visible_data.columns:
+                platform_top = visible_data[selected_platforms[:selected_platforms.index(platform)+1]].sum(axis=1)
                 fig.add_trace(go.Bar(
                     x=visible_data.index,
                     y=visible_data[platform],
                     name=f"{platform} (Bar)",
                     marker=dict(color=px.colors.qualitative.Plotly[selected_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
                 ))
-
-        # Add line chart traces to match bar tops
-        for platform in selected_platforms:
-            if platform in visible_data.columns:
-                platform_top=visible_data[selected_platforms[:selected_platforms.index(platform)+1]].sum(axis=1)   
                 fig.add_trace(go.Scatter(
                     x=visible_data.index,
-                    y=platform_top,  # Giá trị đúng trên đỉnh cột
+                    y=platform_top,  # Values at the top of the bar
                     mode='lines+markers',
                     name=f"{platform} (Line)",
                     line=dict(width=2),
                     marker=dict(size=8)
                 ))
 
-        # Update layout
         fig.update_layout(
             barmode='stack',
             title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
@@ -281,23 +288,75 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             margin=dict(l=40, r=40, t=50, b=40),
             legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
         )
-
-        # Display the chart
         chart_placeholder.plotly_chart(fig, use_container_width=True)
 
-    # Adjust the dataset time
-    def adjust_time(data):
-        min_time = data['Time'].min()
-        current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
-        time_diff = current_time - min_time
-        data['Time'] = data['Time'] + time_diff
-        return data
+        # Update area charts
+        latest_date = simulation_data_platform['Date'].max()
+        new_date = latest_date + pd.Timedelta(days=1)
+        for group, simulation_data in [('Platform', simulation_data_platform), ('Product', simulation_data_product)]:
+            for value in simulation_data[group].unique():
+                new_percentage = np.random.uniform(5, 25)
+                new_entry = {
+                    'Date': new_date,
+                    group: value,
+                    'Daily Sales': 0,
+                    'Daily Sales_Total': 0,
+                    'Percentage': new_percentage
+                }
+                simulation_data = pd.concat([simulation_data, pd.DataFrame([new_entry])], ignore_index=True)
+            for date in simulation_data['Date'].unique():
+                date_mask = simulation_data['Date'] == date
+                simulation_data.loc[date_mask, 'Percentage'] = (
+                    simulation_data.loc[date_mask, 'Percentage'] /
+                    simulation_data.loc[date_mask, 'Percentage'].sum()
+                ) * 100
+            if len(simulation_data['Date'].unique()) > 10:
+                oldest_date = simulation_data['Date'].min()
+                simulation_data = simulation_data[simulation_data['Date'] > oldest_date]
+            if group == 'Platform':
+                simulation_data_platform = simulation_data
+            else:
+                simulation_data_product = simulation_data
 
-    # Adjust time for the current dataset
+        fig_area_platform = go.Figure()
+        for platform in platforms:
+            platform_data = simulation_data_platform[simulation_data_platform['Platform'] == platform]
+            fig_area_platform.add_trace(go.Scatter(
+                x=platform_data['Date'],
+                y=platform_data['Percentage'],
+                stackgroup='one',
+                name=platform
+            ))
+        fig_area_platform.update_layout(
+            title="Tỷ lệ doanh số theo nền tảng",
+            xaxis_title="Thời gian",
+            yaxis_title="Tỷ lệ (%)",
+            height=400,
+            template="plotly_white"
+        )
+        area_placeholder1.plotly_chart(fig_area_platform, use_container_width=True)
+
+        fig_area_product = go.Figure()
+        for product in products:
+            product_data = simulation_data_product[simulation_data_product['Product'] == product]
+            fig_area_product.add_trace(go.Scatter(
+                x=product_data['Date'],
+                y=product_data['Percentage'],
+                stackgroup='one',
+                name=product
+            ))
+        fig_area_product.update_layout(
+            title="Tỷ lệ doanh số theo loại sản phẩm",
+            xaxis_title="Thời gian",
+            yaxis_title="Tỷ lệ (%)",
+            height=400,
+            template="plotly_white"
+        )
+        area_placeholder2.plotly_chart(fig_area_product, use_container_width=True)
+
     current_day_sales = adjust_time(current_day_sales)
-
-    # Update the chart with new data every 5 seconds
     while True:
-        update_kpis_and_chart()
+        update_kpis_and_charts()
         current_day_sales = simulate_new_data(current_day_sales)
         time.sleep(5)
+
