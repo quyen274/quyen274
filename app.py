@@ -258,7 +258,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
         # Add line chart traces to match bar tops
         for platform in selected_platforms:
-            if platform in cumulative_data.columns:
+            if platform in visible_data.columns:
                 platform_top=visible_data[selected_platforms[:selected_platforms.index(platform)+1]].sum(axis=1)   
                 fig.add_trace(go.Scatter(
                     x=visible_data.index,
