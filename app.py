@@ -353,7 +353,15 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             template="plotly_white"
         )
         area_placeholder2.plotly_chart(fig_area_product, use_container_width=True)
-
+    def adjust_time(data):
+            """
+            Adjust the time of the dataset to match the current time.
+            """
+            min_time = data['Time'].min()
+            current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
+            time_diff = current_time - min_time
+            data['Time'] = data['Time'] + time_diff
+            return data
     current_day_sales = adjust_time(current_day_sales)
     while True:
         update_kpis_and_charts()
