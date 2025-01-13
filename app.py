@@ -430,7 +430,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                         )
                     html_content += "</div>"        
                     st.markdown(html_content, unsafe_allow_html=True)
-            display_table()
+     
             
             shopee_placeholder = st.empty()
             tiktok_placeholder = st.empty()
@@ -461,7 +461,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
             update_kpis_and_charts()  # Cập nhật biểu đồ và KPI
             update_recent_data()
-            display_table()
             time.sleep(5)
         
         
