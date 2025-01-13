@@ -211,24 +211,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         new_df = pd.DataFrame(new_data)
         return pd.concat([data, new_df], ignore_index=True)
 
-    # KPI and Chart Placeholders
-    kpi_placeholder = st.empty()
-    chart_placeholder = st.empty()
-    area_placeholder1 = st.empty()
-    area_placeholder2 = st.empty()
-
-    # Normalize data for area charts
-    def normalize_data(grouped_data, group_by):
-        total_sales_by_date = grouped_data.groupby('Date')['Daily Sales'].sum().reset_index()
-        grouped_data = grouped_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
-        grouped_data['Percentage'] = (grouped_data['Daily Sales'] / grouped_data['Daily Sales_Total']) * 100
-        return grouped_data
-
-    simulation_data_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
-    simulation_data_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
-    simulation_data_platform = normalize_data(simulation_data_platform, 'Platform')
-    simulation_data_product = normalize_data(simulation_data_product, 'Product')
-
+    
     
 
         
@@ -249,7 +232,25 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     left_col, right_col = st.columns([3, 1])
 
 # Hiển thị biểu đồ và KPI bên trái
-    with left_col:
+          with left_col:
+                  # KPI and Chart Placeholders
+            kpi_placeholder = st.empty()
+            chart_placeholder = st.empty()
+            area_placeholder1 = st.empty()
+            area_placeholder2 = st.empty()
+        
+            # Normalize data for area charts
+          def normalize_data(grouped_data, group_by):
+                total_sales_by_date = grouped_data.groupby('Date')['Daily Sales'].sum().reset_index()
+                grouped_data = grouped_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
+                grouped_data['Percentage'] = (grouped_data['Daily Sales'] / grouped_data['Daily Sales_Total']) * 100
+                return grouped_data
+        
+          simulation_data_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
+          simulation_data_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
+          simulation_data_platform = normalize_data(simulation_data_platform, 'Platform')
+          simulation_data_product = normalize_data(simulation_data_product, 'Product')
+  
           def update_kpis_and_charts():
                 global current_day_sales, simulation_data_platform, simulation_data_product
         
