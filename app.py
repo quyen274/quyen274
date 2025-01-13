@@ -4,6 +4,12 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import json
+import os
+import openai
+from dotenv import load_dotenv
+
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
     scenarios = json.load(file)
