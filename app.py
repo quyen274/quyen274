@@ -409,33 +409,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     html_content += "</div>"        
                     st.markdown(html_content, unsafe_allow_html=True)
 
-            def simulate_new_data1(data):
-                    """
-                    Tạo dữ liệu giả lập mới mỗi 5 giây.
-                    """
-                    # Thời gian mới nhất
-                    latest_time = data['Time'].max()
-                    new_time = latest_time + pd.Timedelta(minutes=5)
-                
-                    # Tạo dữ liệu mới
-                    new_data = []
-                    for platform in platforms:
-                        for product in products:
-                            # Random số lượng bán trong 5 phút
-                            sales_15_min = np.random.randint(1, 20)  # Giả lập từ 1 đến 20 sản phẩm
-                            new_data.append({
-                                'Time': new_time,
-                                'Platform': platform,
-                                'Product': product,
-                                'Sales (15 min)': sales_15_min
-                            })
-                
-                    # Chuyển sang DataFrame
-                    new_df = pd.DataFrame(new_data)
-                
-                    # Kết hợp dữ liệu mới với dữ liệu cũ
-                    updated_data = pd.concat([data, new_df], ignore_index=True)
-                    return updated_data
+           
     # Lấy dữ liệu bán hàng trong 15 phút gần nhất
             def update_recent_data():
                 global recent_data
