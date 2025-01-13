@@ -430,7 +430,8 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                         )
                     html_content += "</div>"        
                     st.markdown(html_content, unsafe_allow_html=True)
-
+            display_table()
+            
             shopee_placeholder = st.empty()
             tiktok_placeholder = st.empty()
             lazada_placeholder = st.empty()
