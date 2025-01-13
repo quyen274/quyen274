@@ -363,7 +363,53 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             data['Time'] = data['Time'] + time_diff
             return data
     current_day_sales = adjust_time(current_day_sales)
-    
+   
+
+    def format_box(name, value, time):
+            """
+            Tạo format cho box hiển thị (dựa theo thiết kế như trong hình).
+            """
+            return f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 10px; margin: 5px; border-radius: 8px;">
+                <div style="font-weight: bold; font-size: 16px;">{name}</div>
+                <div style="font-size: 14px; color: #333;">{value} sản phẩm</div>
+                <div style="font-size: 12px; color: #666;">{time}</div>
+            </div>
+            """
+
+    def update_recent_data():
+            global recent_data
+            latest_time = current_day_sales['Time'].max()
+            recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
+
+
+    update_recent_data()
+
+    # Tách dữ liệu theo nền tảng
+    shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
+    tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
+    lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
+
+    # Hàm hiển thị bảng cho từng nền tảng
+    def display_table(data, platform_name, placeholder):
+        with placeholder.container():
+            st.markdown(f"<h3 style='text-align: center;'>{platform_name}</h3>", unsafe_allow_html=True)
+            if data.empty:
+                st.write("Không có dữ liệu.")
+            else:
+                html_content = ""
+                for _, row in data.iterrows():
+                    html_content += format_box(
+                        row['Product'],
+                        row['Sales (15 min)'],
+                        row['Time'].strftime('%H:%M')
+                    )
+                st.markdown(html_content, unsafe_allow_html=True)
+
+    # Hiển thị bảng cho từng nền tảng
+    display_table(shopee_data, "Shopee", shopee_placeholder)
+    display_table(tiktok_data, "TikTok", tiktok_placeholder)
+    display_table(lazada_data, "Lazada", lazada_placeholder)
 
 # Chia màn hình thành 2 phần: biểu đồ bên trái và bảng bên phải
     left_col, right_col = st.columns([3, 1])
