@@ -363,7 +363,21 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             data['Time'] = data['Time'] + time_diff
             return data
     current_day_sales = adjust_time(current_day_sales)
+    def update_platform_boxes():
+            global current_day_sales
+        
+            # Tính tổng số lượng bán theo nền tảng
+            sales_by_platform = current_day_sales.groupby('Platform')['Sales (15 min)'].sum()
+        
+            # Hiển thị dữ liệu trong 3 box
+            with box_placeholder1.container():
+                st.metric(label="Số lượng Shopee", value=f"{sales_by_platform.get('Shopee', 0):,.2f}")
+            with box_placeholder2.container():
+                st.metric(label="Số lượng TikTok", value=f"{sales_by_platform.get('TikTok', 0):,.2f}")
+            with box_placeholder3.container():
+                st.metric(label="Số lượng Lazada", value=f"{sales_by_platform.get('Lazada', 0):,.2f}")
     while True:
         update_kpis_and_charts()
+        update_platform_boxes()
         current_day_sales = simulate_new_data(current_day_sales)
         time.sleep(5)
