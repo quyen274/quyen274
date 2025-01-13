@@ -390,25 +390,24 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
             
             def display_table(data, platform_name):
-                """
-                Hiển thị bảng cập nhật doanh số cho từng nền tảng.
-                """
-                st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
-                if data.empty:
-                    st.write("Không có dữ liệu.")
-                else:
-                    latest_data = data.tail(8)    
-                    html_content = """
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
                     """
-                    for _, row in data.iterrows():
-                        html_content += format_box(
-                            row['Product'],
-                            row['Sales (15 min)'],
-                            row['Time'].strftime('%H:%M')
-                        )
-                    html_content += "</div>"        
-                    st.markdown(html_content, unsafe_allow_html=True)
+                    Hiển thị bảng cập nhật doanh số cho từng nền tảng, với tối đa 8 dòng gần nhất.
+                    """
+                    st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
+                    if data.empty:
+                        st.write("Không có dữ liệu.")
+                    else:
+                        latest_data = data.tail(8)  # Lấy 8 dòng gần nhất
+                        html_content = "<div style='display: flex; flex-direction: column; gap: 10px;'>"
+                        for _, row in latest_data.iterrows():
+                            html_content += format_box(
+                                row['Product'],
+                                row['Sales (15 min)'],
+                                row['Time'].strftime('%H:%M')
+                            )
+                        html_content += "</div>"
+                        st.markdown(html_content, unsafe_allow_html=True)
+
      
             
             shopee_placeholder = st.empty()
@@ -437,9 +436,23 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
 # Continuous updates
     while True:
-            current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
-            update_kpis_and_charts()  # Cập nhật biểu đồ và KPI
+            current_day_sales = simulate_new_data(current_day_sales)  # Sinh dữ liệu mới
+    
+            # Cập nhật dữ liệu bán hàng trong vòng 15 phút
             update_recent_data()
+            
+            # Hiển thị dữ liệu cho từng nền tảng
+            with shopee_placeholder:
+                display_table(shopee_data, "Shopee")
+            with tiktok_placeholder:
+                display_table(tiktok_data, "TikTok")
+            with lazada_placeholder:
+                display_table(lazada_data, "Lazada")
+            
+            # Cập nhật KPI và biểu đồ
+            update_kpis_and_charts()
+            
+            # Đợi 5 giây trước khi cập nhật tiếp
             time.sleep(5)
-        
+                
         
