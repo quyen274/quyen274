@@ -451,9 +451,9 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
               
             # Hiển thị từng bảng
-        display_table(shopee_data, "Shopee")
-        display_table(tiktok_data, "TikTok")
-        display_table(lazada_data, "Lazada")
+           display_table(shopee_data, "Shopee")
+           display_table(tiktok_data, "TikTok")
+           display_table(lazada_data, "Lazada")
             
 
 # Continuous updates
