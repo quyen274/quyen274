@@ -414,9 +414,9 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 global recent_sales_for_table
                 recent_sales_for_table = simulate_new_data(recent_sales_for_table)
         
-            shopee_placeholder = st.empty()
-            tiktok_placeholder = st.empty()
-            lazada_placeholder = st.empty()
+          shopee_placeholder = st.empty()
+          tiktok_placeholder = st.empty()
+          lazada_placeholder = st.empty()
         
           def refresh_tables():
                 # Tách dữ liệu theo từng nền tảng
