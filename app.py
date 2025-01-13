@@ -383,7 +383,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     time_diff = current_time - min_time
                     data['Time'] = data['Time'] + time_diff
                     return data
-        current_day_sales = adjust_time(current_day_sales)
+    current_day_sales = adjust_time(current_day_sales)
      
             
 # Hiển thị bảng cập nhật doanh số bên phải
