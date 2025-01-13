@@ -426,8 +426,39 @@ def update_platform_tables():
            
 
     with right_col:
-            # Gọi hàm hiển thị bảng ở đây
-            update_platform_tables()
+    # Gọi hàm hiển thị bảng
+    st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
+
+    def display_table(data, platform_name):
+        """
+        Hiển thị bảng cho từng nền tảng.
+        """
+        st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
+        if data.empty:
+            st.write("Không có dữ liệu.")
+        else:
+            html_content = ""
+            for _, row in data.iterrows():
+                html_content += format_box(
+                    row['Product'],
+                    row['Sales (15 min)'],
+                    row['Time'].strftime('%H:%M')
+                )
+            st.markdown(html_content, unsafe_allow_html=True)
+
+    # Lấy dữ liệu bán hàng trong 15 phút gần nhất
+    latest_time = current_day_sales['Time'].max()
+    recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
+
+    # Tách dữ liệu theo nền tảng
+    shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
+    tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
+    lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
+
+    # Hiển thị bảng cho từng nền tảng
+    display_table(shopee_data, "Shopee")
+    display_table(tiktok_data, "TikTok")
+    display_table(lazada_data, "Lazada")
 
 # Continuous updates
 while True:
