@@ -434,6 +434,9 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     display_table(tiktok_data, "TikTok")
                 with lazada_placeholder:
                     display_table(lazada_data, "Lazada")
+          display_table(shopee_data, "Shopee")
+          display_table(tiktok_data, "TikTok")
+          display_table(lazada_data, "Lazada")
 
 # Continuous updates
     while True:
