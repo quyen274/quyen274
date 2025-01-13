@@ -53,7 +53,7 @@ if page == "Phân Tích Sản Phẩm":
         barmode='group',
         xaxis=dict(tickangle=45),
         margin=dict(l=40, r=40, t=50, b=20),
-        height=400,
+        height=600,
         width=300 
     )
 
