@@ -217,9 +217,9 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             """
             return f"""
             <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 10px; margin: 5px; border-radius: 8px;">
-                <div style="font-weight: bold; font-size: 16px;">{name}</div>
-                <div style="font-size: 12px; margin-left: 5px; color: #333;">{value} sản phẩm</div>
-                <div style="font-size: 12px; color: #666;">{time}</div>
+                <div style="flex: 1; font-weight: bold; font-size: 16px; text-align: left;">{name}</div>
+                <div style="flex: 1; font-size: 14px; color: #333; text-align: center;">{value} sản phẩm</div>
+                <div style="flex: 1; font-size: 12px; color: #666; text-align: right;">{time}</div>
             </div>
             """
 
