@@ -13,7 +13,7 @@ import os
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+OpenAI.api_key = os.getenv("OPENAI_API_KEY")
 
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
