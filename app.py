@@ -151,7 +151,7 @@ if page == "Phân Tích Sản Phẩm":
    
     
     # Thêm phần chiến dịch Affiliate dưới biểu đồ
-    if page == "Phân Tích Sản Phẩm":
+    
         st.title("Định Hướng Chiến Dịch Affiliate")
         
         if "current_scenario_index" not in st.session_state:
