@@ -416,23 +416,18 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             
     # Lấy dữ liệu bán hàng trong 15 phút gần nhất
             def update_recent_data():
-                global recent_data
-                latest_time = current_day_sales['Time'].max()
-                recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
-        
-            # Cập nhật dữ liệu bán hàng trong vòng 15 phút
-            update_recent_data()
-        
-            # Tách dữ liệu theo từng nền tảng
-            shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
-            tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
-            lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
-              
-            # Hiển thị từng bảng
-            display_table(shopee_data, "Shopee")
-            display_table(tiktok_data, "TikTok")
-            display_table(lazada_data, "Lazada")
-            
+                    """
+                    Lấy dữ liệu trong vòng 15 phút gần nhất và chia theo nền tảng.
+                    """
+                    global shopee_data, tiktok_data, lazada_data
+                    latest_time = current_day_sales['Time'].max()
+                    recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
+                    
+                    # Chia dữ liệu theo từng nền tảng
+                    shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
+                    tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
+                    lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
+                            
 
 # Continuous updates
     while True:
