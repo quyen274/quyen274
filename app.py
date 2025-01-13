@@ -426,25 +426,25 @@ def update_platform_tables():
            
 
     with right_col:
-    # Gọi hàm hiển thị bảng
-    st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
-
-    def display_table(data, platform_name):
-        """
-        Hiển thị bảng cho từng nền tảng.
-        """
-        st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
-        if data.empty:
-            st.write("Không có dữ liệu.")
-        else:
-            html_content = ""
-            for _, row in data.iterrows():
-                html_content += format_box(
-                    row['Product'],
-                    row['Sales (15 min)'],
-                    row['Time'].strftime('%H:%M')
-                )
-            st.markdown(html_content, unsafe_allow_html=True)
+            # Gọi hàm hiển thị bảng
+            st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
+        
+            def display_table(data, platform_name):
+                """
+                Hiển thị bảng cho từng nền tảng.
+                """
+                st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
+                if data.empty:
+                    st.write("Không có dữ liệu.")
+                else:
+                    html_content = ""
+                    for _, row in data.iterrows():
+                        html_content += format_box(
+                            row['Product'],
+                            row['Sales (15 min)'],
+                            row['Time'].strftime('%H:%M')
+                        )
+                    st.markdown(html_content, unsafe_allow_html=True)
 
     # Lấy dữ liệu bán hàng trong 15 phút gần nhất
     latest_time = current_day_sales['Time'].max()
