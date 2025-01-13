@@ -409,11 +409,11 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
 # Thêm vào vòng lặp chính
     while True:
-            with main_col:
+        with main_col:
                 update_kpis_and_chart()  # Cập nhật biểu đồ doanh số chính
         
-            with box_col:
+        with box_col:
                 update_platform_boxes()  # Cập nhật box hiển thị
         
-            current_day_sales = simulate_new_data(current_day_sales)  # Thêm dữ liệu mới
-            time.sleep(5)
+        current_day_sales = simulate_new_data(current_day_sales)  # Thêm dữ liệu mới
+        time.sleep(5)
