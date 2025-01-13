@@ -88,9 +88,9 @@ if page == "Phân Tích Sản Phẩm":
     col1, col2 = st.columns(2)
 
     with col1:
-         st.plotly_chart(fig_bar, use_container_width=False)  # Biểu đồ tổng số lượng bán theo tháng
+         st.plotly_chart(fig_bar, use_container_width=False, key="fig_bar_monthly")  # Biểu đồ tổng số lượng bán theo tháng
     with col2:
-         st.plotly_chart(fig_bar_daily, use_container_width=False)  # Biểu đồ số lượng bán theo ngày    
+         st.plotly_chart(fig_bar_daily, use_container_width=False, key="fig_bar_daily")  # Biểu đồ số lượng bán theo ngày    
     # Biểu đồ tròn: Phân phối sản phẩm trong giỏ hàng
     cart_data = pd.read_csv('items_in_cart.csv')
     platforms = cart_data['Platform'].unique()
