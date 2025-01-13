@@ -420,8 +420,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 # Hiển thị biểu đồ và KPI bên trái
     with left_col:
             update_kpis_and_charts()  # Hàm cập nhật KPI và biểu đồ
-            simulate_and_update_area()  # Cập nhật biểu đồ miền
-
+            
 # Hiển thị bảng cập nhật doanh số bên phải
     with right_col:
             st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
