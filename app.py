@@ -64,7 +64,7 @@ if page == "Phân Tích Sản Phẩm":
 
     # Hiển thị biểu đồ cột
     st.plotly_chart(fig_bar, use_container_width=False)
-    fig_bar_daily = go1.Figure()    
+    fig_bar_daily = go.Figure()    
     for platform in daily_sales_by_platform['Platform'].unique():
             platform_data = daily_sales_by_platform[daily_sales_by_platform['Platform'] == platform]
             fig_bar_daily.add_trace(go.Bar(
