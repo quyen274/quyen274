@@ -54,7 +54,7 @@ if page == "Phân Tích Sản Phẩm":
         xaxis=dict(tickangle=45),
         margin=dict(l=40, r=40, t=50, b=20),
         height=600,
-        width=300 
+        width=700 
     )
 
     # Hiển thị biểu đồ cột
