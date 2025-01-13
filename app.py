@@ -13,7 +13,7 @@ import os
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
 load_dotenv()
-OpenAI.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
@@ -203,37 +203,47 @@ if page == "Phân Tích Sản Phẩm":
     st.write("---")
     st.header("Hỏi đáp cùng ChatGPT")
 
-# Initialize session state for chat
+# Initialize chat state
+    if "openai_model" not in st.session_state:
+        st.session_state["openai_model"] = "gpt-3.5-turbo"
+
     if "messages" not in st.session_state:
-            st.session_state.messages = []
+        st.session_state.messages = []
 
 # Display chat history
-    for msg in st.session_state.messages:
-            if msg['role'] == 'user':
-                st.write(f"**Người dùng:** {msg['content']}")
-            else:
-                st.write(f"**ChatGPT:** {msg['content']}")
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+             st.markdown(message["content"])
 
-# User input
-    user_input = st.text_input("Nhập câu hỏi của bạn:", key="user_input")
-    if st.button("Gửi"):
-            if user_input:
-                # Add user message to session state
-                st.session_state.messages.append({"role": "user", "content": user_input})
+# Input for user prompt
+    if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+    # Display user input in chat
+        with st.chat_message("user"):
+             st.markdown(prompt)
+
+    # Generate AI response
+        with st.chat_message("assistant"):
+             full_res = ""
+             holder = st.empty()
+
+        # Stream AI response
+             for response in client.chat.completions.create(
+                    model=st.session_state["openai_model"],
+                    messages=[
+                        {"role": m["role"], "content": m["content"]}
+                        for m in st.session_state.messages
+                    ],
+                    stream=True,
+                ):
+                    full_res += (response.choices[0].delta.content or "")
+                    holder.markdown(full_res + "▌")
         
-                # Get response from OpenAI API
-                try:
-                    response = OpenAI.chat.completion.create(
-                        model="gpt-3.5-turbo",
-                        messages=st.session_state.messages
-                    )
-                    assistant_message = response['choices'][0]['message']['content']
-                    st.session_state.messages.append({"role": "assistant", "content": assistant_message})
-                except Exception as e:
-                    st.error(f"Đã xảy ra lỗi: {e}")
-        
-                # Refresh the page to display the updated conversation
-                st.experimental_rerun()
+             holder.markdown(full_res)
+
+    # Save AI response to session
+    st.session_state.messages.append({"role": "assistant", "content": full_res})
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
