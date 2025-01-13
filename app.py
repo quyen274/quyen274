@@ -363,25 +363,25 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             data['Time'] = data['Time'] + time_diff
             return data
     current_day_sales = adjust_time(current_day_sales)
-main_col, box_col = st.columns([3, 1])  # 3/4 và 1/4 màn hình
+    main_col, box_col = st.columns([3, 1])  # 3/4 và 1/4 màn hình
 
 # Placeholder cho 3 box hiển thị
-with box_col:
-    box_placeholder1 = st.empty()
-    box_placeholder2 = st.empty()
-    box_placeholder3 = st.empty()
+    with box_col:
+            box_placeholder1 = st.empty()
+            box_placeholder2 = st.empty()
+            box_placeholder3 = st.empty()
 
 # Hàm cập nhật box hiển thị thông tin bán hàng
-def update_platform_boxes():
-    global current_day_sales
-
-    # Lấy thông tin bán hàng mới nhất theo nền tảng
-    latest_sales = current_day_sales.groupby(['Platform', 'Product']).sum().reset_index()
-
-    # Tạo nội dung hiển thị cho từng nền tảng
-    shopee_data = latest_sales[latest_sales['Platform'] == 'Shopee']
-    tiktok_data = latest_sales[latest_sales['Platform'] == 'TikTok']
-    lazada_data = latest_sales[latest_sales['Platform'] == 'Lazada']
+    def update_platform_boxes():
+            global current_day_sales
+        
+            # Lấy thông tin bán hàng mới nhất theo nền tảng
+            latest_sales = current_day_sales.groupby(['Platform', 'Product']).sum().reset_index()
+        
+            # Tạo nội dung hiển thị cho từng nền tảng
+            shopee_data = latest_sales[latest_sales['Platform'] == 'Shopee']
+            tiktok_data = latest_sales[latest_sales['Platform'] == 'TikTok']
+            lazada_data = latest_sales[latest_sales['Platform'] == 'Lazada']
 
     def format_box(data, platform_name):
         """
@@ -407,12 +407,12 @@ def update_platform_boxes():
         st.markdown(format_box(lazada_data, "Lazada"))
 
 # Thêm vào vòng lặp chính
-while True:
-    with main_col:
-        update_kpis_and_chart()  # Cập nhật biểu đồ doanh số chính
-
-    with box_col:
-        update_platform_boxes()  # Cập nhật box hiển thị
-
-    current_day_sales = simulate_new_data(current_day_sales)  # Thêm dữ liệu mới
-    time.sleep(5)
+    while True:
+            with main_col:
+                update_kpis_and_chart()  # Cập nhật biểu đồ doanh số chính
+        
+            with box_col:
+                update_platform_boxes()  # Cập nhật box hiển thị
+        
+            current_day_sales = simulate_new_data(current_day_sales)  # Thêm dữ liệu mới
+            time.sleep(5)
