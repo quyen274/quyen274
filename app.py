@@ -380,16 +380,13 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             </div>
             """
 
-    def update_platform_tables():
-            """
-            Cập nhật các bảng riêng biệt cho từng nền tảng (Shopee, TikTok, Lazada).
-            Hiển thị số sản phẩm bán ra trong 15 phút gần nhất.
-            """
-            global current_day_sales
-        
-            # Lấy dữ liệu bán hàng trong 15 phút gần nhất
+    def update_recent_data():
+            global recent_data
             latest_time = current_day_sales['Time'].max()
             recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
+
+
+    update_recent_data()
 
     # Tách dữ liệu theo nền tảng
     shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
