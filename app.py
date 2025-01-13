@@ -39,7 +39,7 @@ page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo C
 if page == "Phân Tích Sản Phẩm":
     st.title("Phân Tích Sản Phẩm")
 
-    efault_platform = "Shopee"
+    default_platform = "Shopee"
     selected_platform = st.sidebar.selectbox("Chọn nền tảng", platforms, index=list(platforms).index(default_platform))
     show_all_platforms = st.sidebar.checkbox("Xem tất cả nền tảng trên biểu đồ cột", value=False)
 
