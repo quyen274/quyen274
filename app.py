@@ -174,13 +174,16 @@ if page == "Phân Tích Sản Phẩm":
         if user_input.strip() != "":
             with st.spinner("AI đang trả lời..."):
                 try:
-                    response = openai.Completion.create(
-                        engine="text-davinci-003",  # Hoặc GPT-4 nếu có
-                        prompt=f"Người dùng hỏi: {user_input}\nHãy trả lời một cách ngắn gọn và chuyên nghiệp.",
-                        max_tokens=150,
+                    response = openai.ChatCompletion.create(
+                        model="gpt-3.5-turbo",  # Hoặc "gpt-4" nếu bạn có quyền truy cập
+                        messages=[
+                            {"role": "system", "content": "Bạn là một trợ lý AI chuyên nghiệp, giúp trả lời các câu hỏi liên quan đến dữ liệu."},
+                            {"role": "user", "content": user_input}
+                        ],
                         temperature=0.7,
+                        max_tokens=150,
                     )
-                    answer = response["choices"][0]["text"].strip()
+                    answer = response['choices'][0]['message']['content'].strip()
                     st.success("Trả lời:")
                     st.write(answer)
                 except Exception as e:
