@@ -422,8 +422,6 @@ def update_platform_tables():
 
     with left_col:
             # Gọi hàm cập nhật biểu đồ và KPI ở đây
-            update_kpis_and_charts()
-           
 
     with right_col:
             # Gọi hàm hiển thị bảng
