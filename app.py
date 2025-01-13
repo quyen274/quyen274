@@ -427,7 +427,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         
                 # Hiển thị từng bảng
                  
-                with shopee_placeholder:
+                with shopee_placeholder.container():
                         st.markdown("<h3 style='text-align: left; color: #FF5722;'>Shopee</h4>", unsafe_allow_html=True)
                         display_table(shopee_data, "Shopee")
 
