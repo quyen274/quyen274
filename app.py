@@ -305,6 +305,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     yaxis_title="Số Lượng Bán",
                     xaxis=dict(rangeslider=dict(visible=True), type="date"),
                     height=500,
+                    width =800,
                     template="plotly_white",
                     margin=dict(l=40, r=40, t=50, b=40),
                     legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
