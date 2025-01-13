@@ -363,6 +363,9 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             data['Time'] = data['Time'] + time_diff
             return data
     current_day_sales = adjust_time(current_day_sales)
+    box_placeholder1 = st.empty()
+    box_placeholder2 = st.empty()
+    box_placeholder3 = st.empty()    
     def update_platform_boxes():
             global current_day_sales
         
