@@ -13,6 +13,11 @@ with open("scenarios.json", "r", encoding="utf-8") as file:
 current_day_sales = pd.read_csv('current_day_sales.csv')
 current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
 
+last_month_start = daily_sales['Date'].max() - pd.Timedelta(days=30)
+last_month_data = daily_sales[daily_sales['Date'] >= last_month_start]
+
+daily_sales_by_platform = last_month_data.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
+
 # Load data
 daily_sales = pd.read_csv('daily_sales.csv')
 cart_data = pd.read_csv('items_in_cart.csv')
@@ -59,7 +64,35 @@ if page == "Phân Tích Sản Phẩm":
 
     # Hiển thị biểu đồ cột
     st.plotly_chart(fig_bar, use_container_width=False)
+    
+    fig_bar_daily = go.Figure()
 
+    for platform in daily_sales_by_platform['Platform'].unique():
+            platform_data = daily_sales_by_platform[daily_sales_by_platform['Platform'] == platform]
+            fig_bar_daily.add_trace(go.Bar(
+                x=platform_data['Date'],
+                y=platform_data['Daily Sales'],
+                name=platform
+            ))
+
+    fig_bar_daily.update_layout(
+            title="Sales by Day in the Last 30 Days (by Platform)",
+            xaxis_title="Date",
+            yaxis_title="Daily Sales",
+            barmode='stack',  # Hoặc 'group' nếu cần phân biệt rõ từng nền tảng
+            xaxis=dict(tickformat="%b %d", tickangle=45),
+            margin=dict(l=40, r=40, t=50, b=20),
+            height=600,
+            width=900
+        )
+
+# Hiển thị hai biểu đồ trên cùng một hàng ngang
+    col1, col2 = st.columns(2)
+
+    with col1:
+         st.plotly_chart(fig_bar, use_container_width=False)  # Biểu đồ tổng số lượng bán theo tháng
+    with col2:
+         st.plotly_chart(fig_bar_daily, use_container_width=False)  # Biểu đồ số lượng bán theo ngày    
     # Biểu đồ tròn: Phân phối sản phẩm trong giỏ hàng
     cart_data = pd.read_csv('items_in_cart.csv')
     platforms = cart_data['Platform'].unique()
