@@ -388,28 +388,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     with right_col:
             st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
 
-            def simulate_new_data1(data):
-                    """
-                    Tạo dữ liệu giả lập mới mỗi 5 giây.
-                    """
-                    latest_time = data['Time'].max()
-                    new_time = latest_time + pd.Timedelta(minutes=5)
-                
-                    new_data = []
-                    for platform in platforms:
-                        for product in products:
-                            # Fake số lượng bán
-                            sales_15_min = np.random.randint(1, 20)
-                            new_data.append({
-                                'Time': new_time,
-                                'Platform': platform,
-                                'Product': product,
-                                'Sales (15 min)': sales_15_min
-                            })
-                
-                    # Chuyển sang DataFrame
-                    new_df = pd.DataFrame(new_data)
-                    return pd.concat([data, new_df], ignore_index=True)
+            
             def display_table(data, platform_name):
                 """
                 Hiển thị bảng cập nhật doanh số cho từng nền tảng.
