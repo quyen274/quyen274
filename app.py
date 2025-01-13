@@ -14,7 +14,7 @@ import requests
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
 load_dotenv()
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
@@ -201,42 +201,53 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
-    st.title("Chatbot với GPT-J")
+    st.write("---")
+    st.header("Hỏi đáp cùng ChatGPT")
 
-# Lưu trữ lịch sử chat
+# Initialize chat state
+    if "openai_model" not in st.session_state:
+        st.session_state["openai_model"] = "gpt-3.5-turbo"
+
     if "messages" not in st.session_state:
-            st.session_state["messages"] = []
+        st.session_state.messages = []
 
-# Hiển thị lịch sử hội thoại
+# Display chat history
     for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+        with st.chat_message(message["role"]):
+             st.markdown(message["content"])
 
-# Đầu vào từ người dùng
-    if prompt := st.chat_input("Hãy nhập câu hỏi của bạn:"):
+# Input for user prompt
+    if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
             st.session_state.messages.append({"role": "user", "content": prompt})
         
-            # Hiển thị câu hỏi của người dùng
+            # Display user input in chat
             with st.chat_message("user"):
                 st.markdown(prompt)
         
-            # Gửi yêu cầu tới API GPT-J
+            # Generate AI response
             with st.chat_message("assistant"):
+                full_res = ""  # Khởi tạo full_res trước khi sử dụng
                 holder = st.empty()
+        
                 try:
-                    # URL của API (thay bằng URL từ Colab/ngrok)
-                    api_url = "http://your-colab-url.ngrok.io/generate"
-                    response = requests.post(api_url, json={"prompt": prompt})
-                    response.raise_for_status()  # Kiểm tra lỗi HTTP
-                    gpt_response = response.json()["response"]
+                    # Stream AI response
+                    for response in client.chat.completions.create(
+                        model=st.session_state["openai_model"],
+                        messages=[
+                            {"role": m["role"], "content": m["content"]}
+                            for m in st.session_state.messages
+                        ],
+                        stream=True,
+                    ):
+                        full_res += (response.choices[0].delta.content or "")
+                        holder.markdown(full_res + "▌")
+        
                 except Exception as e:
-                    gpt_response = f"Đã xảy ra lỗi: {e}"
+                    st.error(f"Đã xảy ra lỗi khi gọi API: {e}")
+                    full_res = "Xin lỗi, ChatGPT không thể xử lý yêu cầu của bạn."
         
-                # Hiển thị phản hồi từ GPT-J
-                holder.markdown(gpt_response)
-        
-            # Lưu phản hồi vào lịch sử
-            st.session_state.messages.append({"role": "assistant", "content": gpt_response})
+            # Save AI response to session state
+            st.session_state.messages.append({"role": "assistant", "content": full_res})
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
