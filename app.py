@@ -443,7 +443,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
         
             # Cập nhật dữ liệu bán hàng trong vòng 15 phút
-        update_recent_data()
+            update_recent_data()
         
             # Tách dữ liệu theo từng nền tảng
         shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
