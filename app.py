@@ -388,26 +388,27 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     with right_col:
             st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
 
+            
             def display_table(data, platform_name):
+                """
+                Hiển thị bảng cập nhật doanh số cho từng nền tảng.
+                """
+                st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
+                if data.empty:
+                    st.write("Không có dữ liệu.")
+                else:
+                    latest_data = data.tail(8)    
+                    html_content = """
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
                     """
-                    Hiển thị bảng cập nhật doanh số cho từng nền tảng, với tối đa 8 dòng gần nhất.
-                    """
-                    st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
-                    if data.empty:
-                        st.write("Không có dữ liệu.")
-                    else:
-                        latest_data = data.tail(8)  # Lấy 8 dòng gần nhất
-                        html_content = "<div style='display: flex; flex-direction: column; gap: 10px;'>"
-                        for _, row in latest_data.iterrows():
-                            html_content += format_box(
-                                row['Product'],
-                                row['Sales (15 min)'],
-                                row['Time'].strftime('%H:%M')
-                            )
-                        html_content += "</div>"
-                        # Hiển thị HTML đã render
-                        st.markdown(html_content, unsafe_allow_html=True)
-
+                    for _, row in data.iterrows():
+                        html_content += format_box(
+                            row['Product'],
+                            row['Sales (15 min)'],
+                            row['Time'].strftime('%H:%M')
+                        )
+                    html_content += "</div>"        
+                    st.markdown(html_content, unsafe_allow_html=True)
      
             
             shopee_placeholder = st.empty()
@@ -416,38 +417,27 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             
     # Lấy dữ liệu bán hàng trong 15 phút gần nhất
             def update_recent_data():
-                    """
-                    Lấy dữ liệu trong vòng 15 phút gần nhất và chia theo nền tảng.
-                    """
-                    global shopee_data, tiktok_data, lazada_data
-                    latest_time = current_day_sales['Time'].max()
-                    recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
-                    
-                    # Chia dữ liệu theo từng nền tảng
-                    shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
-                    tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
-                    lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
-                            
+                global recent_data
+                latest_time = current_day_sales['Time'].max()
+                recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
+        
+            # Cập nhật dữ liệu bán hàng trong vòng 15 phút
+            update_recent_data()
+        
+            # Tách dữ liệu theo từng nền tảng
+            shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
+            tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
+            lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
+              
+            # Hiển thị từng bảng
+            display_table(shopee_data, "Shopee")
+            display_table(tiktok_data, "TikTok")
+            display_table(lazada_data, "Lazada")
+            
 
 # Continuous updates
     while True:
-            current_day_sales = simulate_new_data(current_day_sales)  # Sinh dữ liệu mới
-    
-            # Cập nhật dữ liệu bán hàng trong vòng 15 phút
+            current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
+            update_kpis_and_charts()  # Cập nhật biểu đồ và KPI
             update_recent_data()
-            
-            # Hiển thị dữ liệu cho từng nền tảng
-            with shopee_placeholder:
-                display_table(shopee_data, "Shopee")
-            with tiktok_placeholder:
-                display_table(tiktok_data, "TikTok")
-            with lazada_placeholder:
-                display_table(lazada_data, "Lazada")
-            
-            # Cập nhật KPI và biểu đồ
-            update_kpis_and_charts()
-            
-            # Đợi 5 giây trước khi cập nhật tiếp
             time.sleep(5)
-                
-        
