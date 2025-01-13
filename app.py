@@ -401,7 +401,9 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     st.write("Không có dữ liệu.")
                 else:
                     latest_data = data.tail(8)    
-                    html_content = ""
+                    html_content = """
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    """
                     for _, row in data.iterrows():
                         html_content += format_box(
                             row['Product'],
@@ -424,15 +426,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
             tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
             lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
-            st.markdown("""
-                    <style>
-                    div[data-testid="stMarkdownContainer"] > div {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                    }
-                    </style>
-                """, unsafe_allow_html=True)    
+              
             # Hiển thị từng bảng
             display_table(shopee_data, "Shopee")
             display_table(tiktok_data, "TikTok")
