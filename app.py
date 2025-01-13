@@ -400,6 +400,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 if data.empty:
                     st.write("Không có dữ liệu.")
                 else:
+                    latest_data = data.tail(8)    
                     html_content = ""
                     for _, row in data.iterrows():
                         html_content += format_box(
@@ -407,6 +408,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                             row['Sales (15 min)'],
                             row['Time'].strftime('%H:%M')
                         )
+                    html_content += "</div>"        
                     st.markdown(html_content, unsafe_allow_html=True)
 
     # Lấy dữ liệu bán hàng trong 15 phút gần nhất
@@ -422,11 +424,20 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
             tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
             lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
-        
+            st.markdown("""
+                    <style>
+                    div[data-testid="stMarkdownContainer"] > div {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)    
             # Hiển thị từng bảng
             display_table(shopee_data, "Shopee")
             display_table(tiktok_data, "TikTok")
             display_table(lazada_data, "Lazada")
+            
 
 # Continuous updates
     while True:
