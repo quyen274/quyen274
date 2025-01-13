@@ -5,9 +5,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import json
 import openai
-from dotenv import load_dotenv
-import os
 
+openai.api_key = "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"  # Thay thế bằng API key của bạn
 # Load scenarios
 with open("scenarios.json", "r", encoding="utf-8") as file:
     scenarios = json.load(file)
@@ -167,7 +166,27 @@ if page == "Phân Tích Sản Phẩm":
     for col, fig in zip(cols, fig_pie_row):
         with col:
             st.plotly_chart(fig, use_container_width=False)
+    st.write("### Trợ lý ảo: Hỏi đáp với AI")
 
+    user_input = st.text_area("Nhập câu hỏi của bạn về dữ liệu hoặc sản phẩm:", placeholder="Hãy hỏi tôi về dữ liệu, xu hướng hoặc bất cứ điều gì bạn muốn!")
+
+    if st.button("Hỏi AI"):
+        if user_input.strip() != "":
+            with st.spinner("AI đang trả lời..."):
+                try:
+                    response = openai.Completion.create(
+                        engine="text-davinci-003",  # Hoặc GPT-4 nếu có
+                        prompt=f"Người dùng hỏi: {user_input}\nHãy trả lời một cách ngắn gọn và chuyên nghiệp.",
+                        max_tokens=150,
+                        temperature=0.7,
+                    )
+                    answer = response["choices"][0]["text"].strip()
+                    st.success("Trả lời:")
+                    st.write(answer)
+                except Exception as e:
+                    st.error(f"Đã xảy ra lỗi: {e}")
+        else:
+            st.warning("Vui lòng nhập câu hỏi trước khi bấm Hỏi AI.")
    
          
 elif page == "Báo Cáo Tự Động Về Doanh Số":
