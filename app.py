@@ -91,32 +91,7 @@ if page == "Phân Tích Sản Phẩm":
          st.plotly_chart(fig_bar, use_container_width=False, key="fig_bar_monthly")  # Biểu đồ tổng số lượng bán theo tháng
     with col2:
          st.plotly_chart(fig_bar_daily, use_container_width=False, key="fig_bar_daily")  # Biểu đồ số lượng bán theo ngày    
-    # Biểu đồ tròn: Phân phối sản phẩm trong giỏ hàng
-    cart_data = pd.read_csv('items_in_cart.csv')
-    platforms = cart_data['Platform'].unique()
-
-    fig_pie_row = []
-    for platform in platforms:
-        platform_cart = cart_data[cart_data['Platform'] == platform]
-        items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
-
-        fig_pie = go.Figure(data=[
-            go.Pie(labels=items_in_cart['Product'], values=items_in_cart['Items in Cart'], hole=0.3)
-        ])
-        fig_pie.update_layout(
-            title=f"Cart Distribution on {platform}",
-            margin=dict(l=10, r=10, t=50, b=10),
-            height=350,
-            width=350
-        )
-        fig_pie_row.append(fig_pie)
-
-    # Hiển thị 3 biểu đồ tròn trên cùng một hàng ngang
-    st.write("### Phân phối sản phẩm trong giỏ hàng")
-    cols = st.columns(len(fig_pie_row))
-    for col, fig in zip(cols, fig_pie_row):
-        with col:
-            st.plotly_chart(fig, use_container_width=False)
+    
          # Biểu đồ cột và đường: Tổng số lượng bán ra theo sản phẩm trong 30 ngày gần nhất tách theo sàn
     selected_platform = st.sidebar.selectbox("Chọn nền tảng", platforms)
 
@@ -178,7 +153,33 @@ if page == "Phân Tích Sản Phẩm":
         with cols[i % len(cols)]:
             st.plotly_chart(fig, use_container_width=True)
    
-    
+
+    # Biểu đồ tròn: Phân phối sản phẩm trong giỏ hàng
+    cart_data = pd.read_csv('items_in_cart.csv')
+    platforms = cart_data['Platform'].unique()
+
+    fig_pie_row = []
+    for platform in platforms:
+        platform_cart = cart_data[cart_data['Platform'] == platform]
+        items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
+
+        fig_pie = go.Figure(data=[
+            go.Pie(labels=items_in_cart['Product'], values=items_in_cart['Items in Cart'], hole=0.3)
+        ])
+        fig_pie.update_layout(
+            title=f"Cart Distribution on {platform}",
+            margin=dict(l=10, r=10, t=50, b=10),
+            height=350,
+            width=350
+        )
+        fig_pie_row.append(fig_pie)
+
+    # Hiển thị 3 biểu đồ tròn trên cùng một hàng ngang
+    st.write("### Phân phối sản phẩm trong giỏ hàng")
+    cols = st.columns(len(fig_pie_row))
+    for col, fig in zip(cols, fig_pie_row):
+        with col:
+            st.plotly_chart(fig, use_container_width=False)    
     # Thêm phần chiến dịch Affiliate dưới biểu đồ
     if page == "Phân Tích Sản Phẩm":
         st.title("Định Hướng Chiến Dịch Affiliate")
