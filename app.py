@@ -383,13 +383,12 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     return data
     current_day_sales = adjust_time(current_day_sales)
      
-            
+    recent_sales_for_table = current_day_sales.copy()        
 # Hiển thị bảng cập nhật doanh số bên phải
     with right_col:
-            st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
+          st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
 
-            
-            def display_table(data, platform_name):
+          def display_table(data, platform_name):
                 """
                 Hiển thị bảng cập nhật doanh số cho từng nền tảng.
                 """
@@ -397,47 +396,47 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 if data.empty:
                     st.write("Không có dữ liệu.")
                 else:
-                    latest_data = data.tail(8)    
+                    latest_data = data.tail(8)  # Chỉ lấy dữ liệu mới nhất
                     html_content = """
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                     """
-                    for _, row in data.iterrows():
+                    for _, row in latest_data.iterrows():
                         html_content += format_box(
                             row['Product'],
                             row['Sales (15 min)'],
                             row['Time'].strftime('%H:%M')
                         )
-                    html_content += "</div>"        
+                    html_content += "</div>"
                     st.markdown(html_content, unsafe_allow_html=True)
-     
-            
+        
+            # Lấy dữ liệu bán hàng trong 15 phút gần nhất
+          def update_recent_table_data():
+                global recent_sales_for_table
+                recent_sales_for_table = simulate_new_data(recent_sales_for_table)
+        
             shopee_placeholder = st.empty()
             tiktok_placeholder = st.empty()
             lazada_placeholder = st.empty()
-            
-    # Lấy dữ liệu bán hàng trong 15 phút gần nhất
-            def update_recent_data():
-                global recent_data
-                latest_time = current_day_sales['Time'].max()
-                recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
         
-            # Cập nhật dữ liệu bán hàng trong vòng 15 phút
-            update_recent_data()
+          def refresh_tables():
+                # Tách dữ liệu theo từng nền tảng
+                shopee_data = recent_sales_for_table[recent_sales_for_table['Platform'] == "Shopee"]
+                tiktok_data = recent_sales_for_table[recent_sales_for_table['Platform'] == "TikTok"]
+                lazada_data = recent_sales_for_table[recent_sales_for_table['Platform'] == "Lazada"]
         
-            # Tách dữ liệu theo từng nền tảng
-            shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
-            tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
-            lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
-              
-            # Hiển thị từng bảng
-            display_table(shopee_data, "Shopee")
-            display_table(tiktok_data, "TikTok")
-            display_table(lazada_data, "Lazada")
-            
+                # Hiển thị từng bảng
+                with shopee_placeholder:
+                    display_table(shopee_data, "Shopee")
+                with tiktok_placeholder:
+                    display_table(tiktok_data, "TikTok")
+                with lazada_placeholder:
+                    display_table(lazada_data, "Lazada")
+                    
 
 # Continuous updates
     while True:
             current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
             update_kpis_and_charts()  # Cập nhật biểu đồ và KPI
-            update_recent_data()
+            update_recent_table_data()
+            refresh_tables()
             time.sleep(5)
