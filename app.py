@@ -443,18 +443,21 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
         
             # Cập nhật dữ liệu bán hàng trong vòng 15 phút
-            update_recent_data()
+                update_recent_data()
         
             # Tách dữ liệu theo từng nền tảng
-            shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
-            tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
-            lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
+                shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
+                tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
+                lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
               
             # Hiển thị từng bảng
-            display_table(shopee_data, "Shopee")
-            display_table(tiktok_data, "TikTok")
-            display_table(lazada_data, "Lazada")
-            
+                display_table(shopee_data, "Shopee")
+                display_table(tiktok_data, "TikTok")
+                display_table(lazada_data, "Lazada")
+            while True:
+                    current_day_sales = simulate_new_data(current_day_sales)  # Fake dữ liệu mới
+                    update_recent_data()  # Cập nhật bảng hiển thị
+                    time.sleep(5)  # Tạm dừng 5 giây
 
 # Continuous updates
     while True:
