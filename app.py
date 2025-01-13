@@ -383,20 +383,20 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             tiktok_data = latest_sales[latest_sales['Platform'] == 'TikTok']
             lazada_data = latest_sales[latest_sales['Platform'] == 'Lazada']
 
-    def format_box(data, platform_name):
-        """
-        Định dạng nội dung hiển thị cho mỗi box.
-        """
-        if data.empty:
-            return f"### {platform_name}\n- Không có dữ liệu"
-        else:
-            # Lấy sản phẩm bán chạy nhất
-            top_product = data.iloc[0]
-            return f"""
-            ### {platform_name}
-            - **Sản phẩm:** {top_product['Product']}
-            - **Số lượng bán:** {top_product['Sales (15 min)']}
-            """
+            def format_box(data, platform_name):
+                """
+                Định dạng nội dung hiển thị cho mỗi box.
+                """
+                if data.empty:
+                    return f"### {platform_name}\n- Không có dữ liệu"
+                else:
+                    # Lấy sản phẩm bán chạy nhất
+                    top_product = data.iloc[0]
+                    return f"""
+                    ### {platform_name}
+                    - **Sản phẩm:** {top_product['Product']}
+                    - **Số lượng bán:** {top_product['Sales (15 min)']}
+                    """
 
     # Cập nhật các box
     with box_placeholder1.container():
