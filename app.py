@@ -378,11 +378,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             </div>
             """
 
-    # Tách dữ liệu theo nền tảng
-    shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
-    tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
-    lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
-
     # Hàm hiển thị bảng cho từng nền tảng
     def display_table(data, platform_name, placeholder):
         with placeholder.container():
