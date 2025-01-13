@@ -194,7 +194,40 @@ if page == "Phân Tích Sản Phẩm":
 
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
-    
+    st.write("---")
+    st.header("Hỏi đáp cùng ChatGPT")
+
+# Initialize session state for chat
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+# Display chat history
+    for msg in st.session_state.messages:
+            if msg['role'] == 'user':
+                st.write(f"**Người dùng:** {msg['content']}")
+            else:
+                st.write(f"**ChatGPT:** {msg['content']}")
+
+# User input
+    user_input = st.text_input("Nhập câu hỏi của bạn:", key="user_input")
+    if st.button("Gửi"):
+            if user_input:
+                # Add user message to session state
+                st.session_state.messages.append({"role": "user", "content": user_input})
+        
+                # Get response from OpenAI API
+                try:
+                    response = openai.ChatCompletion.create(
+                        model="gpt-3.5-turbo",
+                        messages=st.session_state.messages
+                    )
+                    assistant_message = response["choices"][0]["message"]["content"]
+                    st.session_state.messages.append({"role": "assistant", "content": assistant_message})
+                except Exception as e:
+                    st.error(f"Đã xảy ra lỗi: {e}")
+        
+                # Refresh the page to display the updated conversation
+                st.experimental_rerun()
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
