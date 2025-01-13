@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import os
 import requests
 import cohere
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
@@ -202,50 +203,36 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
-    api_key = "pvivrA4CJZmUU7lzOjYVCkxlPdrtn72lmuGLOfKo"  # Thay bằng API Key của bạn
-    co = cohere.Client(api_key)
+    model_name = "EleutherAI/gpt-j-6B"  # Hoặc "bigscience/bloom-560m"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name)
 
-   
+    st.title("Chatbot GPT-J với Ngữ Cảnh")
 
-    st.title("Chatbot với Cohere Chat API")
-
-# Lưu trữ lịch sử chat
-    if "messages" not in st.session_state:
-            st.session_state["messages"] = []
-
-# Hiển thị lịch sử hội thoại
-    for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+# Lưu trữ lịch sử hội thoại
+    if "chat_history" not in st.session_state:
+            st.session_state["chat_history"] = ""
 
 # Đầu vào từ người dùng
-    if prompt := st.chat_input("Hãy nhập câu hỏi của bạn:"):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-        
-            # Hiển thị câu hỏi của người dùng
-            with st.chat_message("user"):
-                st.markdown(prompt)
-        
-            # Gửi yêu cầu tới Cohere Chat API
-            with st.chat_message("assistant"):
-                holder = st.empty()
-                try:
-                    # Gửi yêu cầu qua Chat API
-                    response = co.chat(
-                        query=prompt,
-                        examples=[],  # Thêm ví dụ hội thoại nếu cần
-                        max_tokens=150
-                    )
-                    gpt_response = response.reply
-                except Exception as e:
-                    gpt_response = f"Đã xảy ra lỗi: {e}"
-        
-                # Hiển thị phản hồi từ Cohere
-                holder.markdown(gpt_response)
-        
-            # Lưu phản hồi vào lịch sử
-            st.session_state.messages.append({"role": "assistant", "content": gpt_response})
+    user_input = st.text_input("Hãy nhập câu hỏi của bạn:")
 
+    if user_input:
+            # Thêm câu hỏi vào lịch sử hội thoại
+            st.session_state["chat_history"] += f"Người dùng: {user_input}\n"
+        
+            # Tạo prompt với lịch sử hội thoại
+            inputs = tokenizer(st.session_state["chat_history"], return_tensors="pt")
+            outputs = model.generate(inputs.input_ids, max_length=500, pad_token_id=tokenizer.eos_token_id)
+        
+            # Phản hồi từ bot
+            bot_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            bot_response = bot_response[len(st.session_state["chat_history"]):].strip()
+        
+            # Thêm phản hồi vào lịch sử hội thoại
+            st.session_state["chat_history"] += f"Chatbot: {bot_response}\n"
+        
+            # Hiển thị phản hồi
+            st.write(f"**Chatbot:** {bot_response}")
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
