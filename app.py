@@ -426,6 +426,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         
                 # Hiển thị từng bảng
                 with shopee_placeholder:
+                    st.markdown("<h4 style='text-align: center;'>Shopee</h4>", unsafe_allow_html=True)    
                     display_table(shopee_data, "Shopee")
                 with tiktok_placeholder:
                     display_table(tiktok_data, "TikTok")
