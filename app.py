@@ -409,7 +409,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     html_content += "</div>"        
                     st.markdown(html_content, unsafe_allow_html=True)
 
-            def simulate_new_data(data):
+            def simulate_new_data1(data):
                     """
                     Tạo dữ liệu giả lập mới mỗi 5 giây.
                     """
