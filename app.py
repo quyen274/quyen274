@@ -429,14 +429,17 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 # Hiển thị từng bảng
                  
                 with shopee_placeholder:
-                    display_table(shopee_data, "Shopee")
+                        st.markdown("<h4 style='text-align: left; color: #FF5722;'>Shopee</h4>", unsafe_allow_html=True)
+                        display_table(shopee_data, "Shopee")
+
                 with tiktok_placeholder:
-                    display_table(tiktok_data, "TikTok")
+                        st.markdown("<h4 style='text-align: left; color: #6A1B9A;'>TikTok</h4>", unsafe_allow_html=True)
+                        display_table(tiktok_data, "TikTok")
+                
                 with lazada_placeholder:
-                    display_table(lazada_data, "Lazada")
-          display_table(shopee_data, "Shopee")
-          display_table(tiktok_data, "TikTok")
-          display_table(lazada_data, "Lazada")
+                        st.markdown("<h4 style='text-align: left; color: #1976D2;'>Lazada</h4>", unsafe_allow_html=True)
+                        display_table(lazada_data, "Lazada")
+                          
 
 # Continuous updates
     while True:
