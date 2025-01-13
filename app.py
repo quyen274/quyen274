@@ -388,9 +388,9 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     with right_col:
             st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
 
-            def simulate_new_data_for_table(data):
+            def simulate_new_data1(data):
                     """
-                    Sinh dữ liệu mới mỗi 5 giây.
+                    Tạo dữ liệu giả lập mới mỗi 5 giây.
                     """
                     latest_time = data['Time'].max()
                     new_time = latest_time + pd.Timedelta(minutes=5)
@@ -398,6 +398,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     new_data = []
                     for platform in platforms:
                         for product in products:
+                            # Fake số lượng bán
                             sales_15_min = np.random.randint(1, 20)
                             new_data.append({
                                 'Time': new_time,
@@ -406,30 +407,29 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                                 'Sales (15 min)': sales_15_min
                             })
                 
+                    # Chuyển sang DataFrame
                     new_df = pd.DataFrame(new_data)
                     return pd.concat([data, new_df], ignore_index=True)
             def display_table(data, platform_name):
                 """
                 Hiển thị bảng cập nhật doanh số cho từng nền tảng.
                 """
-                platform_data = data[data['Platform'] == platform_name].tail(8)  # Lấy 8 dòng mới nhất
-                with placeholder.container():    
-                        st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
-                        if data.empty:
-                            st.write("Không có dữ liệu.")
-                        else:
-                            latest_data = data.tail(8)    
-                            html_content = """
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                            """
-                            for _, row in data.iterrows():
-                                html_content += format_box(
-                                    row['Product'],
-                                    row['Sales (15 min)'],
-                                    row['Time'].strftime('%H:%M')
-                                )
-                            html_content += "</div>"        
-                            st.markdown(html_content, unsafe_allow_html=True)
+                st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
+                if data.empty:
+                    st.write("Không có dữ liệu.")
+                else:
+                    latest_data = data.tail(8)    
+                    html_content = """
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    """
+                    for _, row in data.iterrows():
+                        html_content += format_box(
+                            row['Product'],
+                            row['Sales (15 min)'],
+                            row['Time'].strftime('%H:%M')
+                        )
+                    html_content += "</div>"        
+                    st.markdown(html_content, unsafe_allow_html=True)
      
             
             shopee_placeholder = st.empty()
