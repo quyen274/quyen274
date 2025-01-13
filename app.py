@@ -437,7 +437,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     updated_data = pd.concat([data, new_df], ignore_index=True)
                     return updated_data
     # Lấy dữ liệu bán hàng trong 15 phút gần nhất
-           def update_recent_data():
+            def update_recent_data():
                 global recent_data
                 latest_time = current_day_sales['Time'].max()
                 recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
