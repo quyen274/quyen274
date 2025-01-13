@@ -13,3 +13,6 @@ plotly
 python-dotenv
 openai
 cohere
+transformers>=4.30.0
+torch>=1.10.0
+sentencepiece
