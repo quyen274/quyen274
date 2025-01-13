@@ -223,7 +223,7 @@ if page == "Phân Tích Sản Phẩm":
         
                 # Get response from OpenAI API
                 try:
-                    response = OpenAI.ChatCompletion.create(
+                    response = OpenAI.chat.completion.create(
                         model="gpt-3.5-turbo",
                         messages=st.session_state.messages
                     )
