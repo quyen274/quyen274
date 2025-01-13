@@ -53,8 +53,8 @@ if page == "Phân Tích Sản Phẩm":
         barmode='group',
         xaxis=dict(tickangle=45),
         margin=dict(l=40, r=40, t=50, b=20),
-        height=700,
-        width=500 
+        height=400,
+        width=300 
     )
 
     # Hiển thị biểu đồ cột
