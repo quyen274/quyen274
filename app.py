@@ -211,193 +211,232 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
         new_df = pd.DataFrame(new_data)
         return pd.concat([data, new_df], ignore_index=True)
 
-    # KPI and Chart Placeholders
-    kpi_placeholder = st.empty()
-    chart_placeholder = st.empty()
-    area_placeholder1 = st.empty()
-    area_placeholder2 = st.empty()
-
-    # Normalize data for area charts
-    def normalize_data(grouped_data, group_by):
-        total_sales_by_date = grouped_data.groupby('Date')['Daily Sales'].sum().reset_index()
-        grouped_data = grouped_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
-        grouped_data['Percentage'] = (grouped_data['Daily Sales'] / grouped_data['Daily Sales_Total']) * 100
-        return grouped_data
-
-    simulation_data_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
-    simulation_data_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
-    simulation_data_platform = normalize_data(simulation_data_platform, 'Platform')
-    simulation_data_product = normalize_data(simulation_data_product, 'Product')
-
-    def update_kpis_and_charts():
-        global current_day_sales, simulation_data_platform, simulation_data_product
-
-        # Filter data for the selected platforms and products
-        filtered_data = filter_data(current_day_sales, selected_platforms, selected_products)
-
-        # KPI Calculation
-        total_sales = filtered_data['Sales (15 min)'].sum()
-        total_revenue = total_sales * 200  # Giả định giá mỗi sản phẩm là 200
-        total_cost = total_revenue * 0.6  # Chi phí là 60% doanh thu
-        total_profit = total_revenue - total_cost
-
-        # Display KPIs
-        with kpi_placeholder.container():
-            st.metric("Tổng Doanh Thu", f"{total_revenue:,.0f}", delta=f"+{total_sales:,} sản phẩm")
-            st.metric("Tổng Lợi Nhuận", f"{total_profit:,.0f}", delta=f"+{(total_profit):,.0f}")
-
-        # Prepare data for the bar and line chart
-        pivot_data = filtered_data.pivot_table(
-            index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
-        )
-
-        # Select visible data based on zoom level
-        if len(pivot_data) > zoom_level:
-            visible_data = pivot_data.iloc[-zoom_level:]
-        else:
-            visible_data = pivot_data
-
-        # Create bar and line chart
-        fig = go.Figure()
-        for platform in selected_platforms:
-            if platform in visible_data.columns:
-                platform_top = visible_data[selected_platforms[:selected_platforms.index(platform)+1]].sum(axis=1)
-                fig.add_trace(go.Bar(
-                    x=visible_data.index,
-                    y=visible_data[platform],
-                    name=f"{platform} (Bar)",
-                    marker=dict(color=px.colors.qualitative.Plotly[selected_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
-                ))
-                fig.add_trace(go.Scatter(
-                    x=visible_data.index,
-                    y=platform_top,  # Values at the top of the bar
-                    mode='lines+markers',
-                    name=f"{platform} (Line)",
-                    line=dict(width=2),
-                    marker=dict(size=8)
-                ))
-
-        fig.update_layout(
-            barmode='stack',
-            title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
-            xaxis_title="Thời Gian",
-            yaxis_title="Số Lượng Bán",
-            xaxis=dict(rangeslider=dict(visible=True), type="date"),
-            height=500,
-            template="plotly_white",
-            margin=dict(l=40, r=40, t=50, b=40),
-            legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
-        )
-        chart_placeholder.plotly_chart(fig, use_container_width=True)
-
-        # Update area charts
-        latest_date = simulation_data_platform['Date'].max()
-        new_date = latest_date + pd.Timedelta(days=1)
-        for group, simulation_data in [('Platform', simulation_data_platform), ('Product', simulation_data_product)]:
-            for value in simulation_data[group].unique():
-                new_percentage = np.random.uniform(5, 25)
-                new_entry = {
-                    'Date': new_date,
-                    group: value,
-                    'Daily Sales': 0,
-                    'Daily Sales_Total': 0,
-                    'Percentage': new_percentage
-                }
-                simulation_data = pd.concat([simulation_data, pd.DataFrame([new_entry])], ignore_index=True)
-            for date in simulation_data['Date'].unique():
-                date_mask = simulation_data['Date'] == date
-                simulation_data.loc[date_mask, 'Percentage'] = (
-                    simulation_data.loc[date_mask, 'Percentage'] /
-                    simulation_data.loc[date_mask, 'Percentage'].sum()
-                ) * 100
-            if len(simulation_data['Date'].unique()) > 10:
-                oldest_date = simulation_data['Date'].min()
-                simulation_data = simulation_data[simulation_data['Date'] > oldest_date]
-            if group == 'Platform':
-                simulation_data_platform = simulation_data
-            else:
-                simulation_data_product = simulation_data
-
-        fig_area_platform = go.Figure()
-        for platform in platforms:
-            platform_data = simulation_data_platform[simulation_data_platform['Platform'] == platform]
-            fig_area_platform.add_trace(go.Scatter(
-                x=platform_data['Date'],
-                y=platform_data['Percentage'],
-                stackgroup='one',
-                name=platform
-            ))
-        fig_area_platform.update_layout(
-            title="Tỷ lệ doanh số theo nền tảng",
-            xaxis_title="Thời gian",
-            yaxis_title="Tỷ lệ (%)",
-            height=400,
-            template="plotly_white"
-        )
-        area_placeholder1.plotly_chart(fig_area_platform, use_container_width=True)
-
-        fig_area_product = go.Figure()
-        for product in products:
-            product_data = simulation_data_product[simulation_data_product['Product'] == product]
-            fig_area_product.add_trace(go.Scatter(
-                x=product_data['Date'],
-                y=product_data['Percentage'],
-                stackgroup='one',
-                name=product
-            ))
-        fig_area_product.update_layout(
-            title="Tỷ lệ doanh số theo loại sản phẩm",
-            xaxis_title="Thời gian",
-            yaxis_title="Tỷ lệ (%)",
-            height=400,
-            template="plotly_white"
-        )
-        area_placeholder2.plotly_chart(fig_area_product, use_container_width=True)
-    def adjust_time(data):
+    def format_box(name, value, time):
             """
-            Adjust the time of the dataset to match the current time.
+            Tạo format cho box hiển thị (dựa theo thiết kế như trong hình).
             """
-            min_time = data['Time'].min()
-            current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
-            time_diff = current_time - min_time
-            data['Time'] = data['Time'] + time_diff
-            return data
-    current_day_sales = adjust_time(current_day_sales)
-    # Tạo placeholder cho box hiển thị bên phải
-    box_placeholder = st.sidebar.empty()  # Sử dụng sidebar để hiển thị bên phải màn hình
+            return f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 10px; margin: 5px; border-radius: 8px;">
+                <div style="flex: 1; font-weight: bold; font-size: 16px; text-align: left;">{name}</div>
+                <div style="flex: 1; font-size: 14px; color: #333; text-align: center;">{value} sản phẩm</div>
+                <div style="flex: 1; font-size: 12px; color: #666; text-align: right;">{time}</div>
+            </div>
+            """
 
-    def update_product_boxes():
-            """
-            Hàm cập nhật box hiển thị tên sản phẩm và số lượng bán mỗi 5 giây.
-            """
-            global current_day_sales, simulation_data_platform
+    
+# Chia màn hình thành 2 phần: biểu đồ bên trái và bảng bên phải
+    left_col, right_col = st.columns([3, 1])
+
+# Hiển thị biểu đồ và KPI bên trái
+    with left_col:
+                  # KPI and Chart Placeholders
+          kpi_placeholder = st.empty()
+          chart_placeholder = st.empty()
+          area_placeholder1 = st.empty()
+          area_placeholder2 = st.empty()
         
-            # Lấy dữ liệu mới nhất từ biểu đồ miền
-            platform_data = simulation_data_platform.groupby('Platform')['Daily Sales'].sum().reset_index()
-            product_data = simulation_data_product.groupby('Product')['Daily Sales'].sum().reset_index()
+            # Normalize data for area charts
+          def normalize_data(grouped_data, group_by):
+                total_sales_by_date = grouped_data.groupby('Date')['Daily Sales'].sum().reset_index()
+                grouped_data = grouped_data.merge(total_sales_by_date, on='Date', suffixes=(None, '_Total'))
+                grouped_data['Percentage'] = (grouped_data['Daily Sales'] / grouped_data['Daily Sales_Total']) * 100
+                return grouped_data
         
-            # Render box
-            with box_placeholder.container():
-                st.markdown("### **Bảng Cập Nhật Doanh Số**")
+          simulation_data_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
+          simulation_data_product = daily_sales.groupby(['Date', 'Product'])['Daily Sales'].sum().reset_index()
+          simulation_data_platform = normalize_data(simulation_data_platform, 'Platform')
+          simulation_data_product = normalize_data(simulation_data_product, 'Product')
+  
+          def update_kpis_and_charts():
+                global current_day_sales, simulation_data_platform, simulation_data_product
+        
+                # Filter data for the selected platforms and products
+                filtered_data = filter_data(current_day_sales, selected_platforms, selected_products)
+        
+                # KPI Calculation
+                total_sales = filtered_data['Sales (15 min)'].sum()
+                total_revenue = total_sales * 200  # Giả định giá mỗi sản phẩm là 200
+                total_cost = total_revenue * 0.6  # Chi phí là 60% doanh thu
+                total_profit = total_revenue - total_cost
+        
+                # Display KPIs
+                with kpi_placeholder.container():
+                    st.metric("Tổng Doanh Thu", f"{total_revenue:,.0f}", delta=f"+{total_sales:,} sản phẩm")
+                    st.metric("Tổng Lợi Nhuận", f"{total_profit:,.0f}", delta=f"+{(total_profit):,.0f}")
+        
+                # Prepare data for the bar and line chart
+                pivot_data = filtered_data.pivot_table(
+                    index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
+                )
+        
+                # Select visible data based on zoom level
+                if len(pivot_data) > zoom_level:
+                    visible_data = pivot_data.iloc[-zoom_level:]
+                else:
+                    visible_data = pivot_data
+        
+                # Create bar and line chart
+                fig = go.Figure()
+                for platform in selected_platforms:
+                    if platform in visible_data.columns:
+                        platform_top = visible_data[selected_platforms[:selected_platforms.index(platform)+1]].sum(axis=1)
+                        fig.add_trace(go.Bar(
+                            x=visible_data.index,
+                            y=visible_data[platform],
+                            name=f"{platform} (Bar)",
+                            marker=dict(color=px.colors.qualitative.Plotly[selected_platforms.index(platform) % len(px.colors.qualitative.Plotly)])
+                        ))
+                        fig.add_trace(go.Scatter(
+                            x=visible_data.index,
+                            y=platform_top,  # Values at the top of the bar
+                            mode='lines+markers',
+                            name=f"{platform} (Line)",
+                            line=dict(width=2),
+                            marker=dict(size=8)
+                        ))
+        
+                fig.update_layout(
+                    barmode='stack',
+                    title="Biểu Đồ Doanh Số Theo Thời Gian (Bar + Line)",
+                    xaxis_title="Thời Gian",
+                    yaxis_title="Số Lượng Bán",
+                    xaxis=dict(rangeslider=dict(visible=True), type="date"),
+                    height=500,
+                    width =800,
+                    template="plotly_white",
+                    margin=dict(l=40, r=40, t=50, b=40),
+                    legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
+                )
+                chart_placeholder.plotly_chart(fig, use_container_width=True)
+        
+                # Update area charts
+                latest_date = simulation_data_platform['Date'].max()
+                new_date = latest_date + pd.Timedelta(days=1)
+                for group, simulation_data in [('Platform', simulation_data_platform), ('Product', simulation_data_product)]:
+                    for value in simulation_data[group].unique():
+                        new_percentage = np.random.uniform(5, 25)
+                        new_entry = {
+                            'Date': new_date,
+                            group: value,
+                            'Daily Sales': 0,
+                            'Daily Sales_Total': 0,
+                            'Percentage': new_percentage
+                        }
+                        simulation_data = pd.concat([simulation_data, pd.DataFrame([new_entry])], ignore_index=True)
+                    for date in simulation_data['Date'].unique():
+                        date_mask = simulation_data['Date'] == date
+                        simulation_data.loc[date_mask, 'Percentage'] = (
+                            simulation_data.loc[date_mask, 'Percentage'] /
+                            simulation_data.loc[date_mask, 'Percentage'].sum()
+                        ) * 100
+                    if len(simulation_data['Date'].unique()) > 10:
+                        oldest_date = simulation_data['Date'].min()
+                        simulation_data = simulation_data[simulation_data['Date'] > oldest_date]
+                    if group == 'Platform':
+                        simulation_data_platform = simulation_data
+                    else:
+                        simulation_data_product = simulation_data
+        
+                fig_area_platform = go.Figure()
                 for platform in platforms:
-                    # Dữ liệu cho nền tảng cụ thể
-                    platform_specific_data = product_data[product_data['Product'].isin(
-                        current_day_sales[current_day_sales['Platform'] == platform]['Product']
-                    )]
+                    platform_data = simulation_data_platform[simulation_data_platform['Platform'] == platform]
+                    fig_area_platform.add_trace(go.Scatter(
+                        x=platform_data['Date'],
+                        y=platform_data['Percentage'],
+                        stackgroup='one',
+                        name=platform
+                    ))
+                fig_area_platform.update_layout(
+                    title="Tỷ lệ doanh số theo nền tảng",
+                    xaxis_title="Thời gian",
+                    yaxis_title="Tỷ lệ (%)",
+                    height=400,
+                    template="plotly_white"
+                )
+                area_placeholder1.plotly_chart(fig_area_platform, use_container_width=True)
         
-                    st.markdown(f"#### **Nền tảng: {platform}**")
-                    for _, row in platform_specific_data.iterrows():
-                        product_name = row['Product']
-                        sales_count = int(row['Daily Sales'])
-        
-                        # Tạo hiển thị kiểu cột dọc với hai phần: Tên sản phẩm và số lượng bán
-                        st.write(f"**{product_name}**: {sales_count} sản phẩm")
-                st.markdown("---")  # Đường ngăn cách giữa các box
+                fig_area_product = go.Figure()
+                for product in products:
+                    product_data = simulation_data_product[simulation_data_product['Product'] == product]
+                    fig_area_product.add_trace(go.Scatter(
+                        x=product_data['Date'],
+                        y=product_data['Percentage'],
+                        stackgroup='one',
+                        name=product
+                    ))
+                fig_area_product.update_layout(
+                    title="Tỷ lệ doanh số theo loại sản phẩm",
+                    xaxis_title="Thời gian",
+                    yaxis_title="Tỷ lệ (%)",
+                    height=400,
+                    template="plotly_white"
+                )
+                area_placeholder2.plotly_chart(fig_area_product, use_container_width=True)
+          def adjust_time(data):
+                    """
+                    Adjust the time of the dataset to match the current time.
+                    """
+                    min_time = data['Time'].min()
+                    current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
+                    time_diff = current_time - min_time
+                    data['Time'] = data['Time'] + time_diff
+                    return data
+    current_day_sales = adjust_time(current_day_sales)
+     
+    recent_sales_for_table = current_day_sales.copy()        
+# Hiển thị bảng cập nhật doanh số bên phải
+    with right_col:
+          st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
 
-# Điều chỉnh thời gian cập nhật box
+          def display_table(data, platform_name):
+                """
+                Hiển thị bảng cập nhật doanh số cho từng nền tảng.
+                """
+                st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
+                if data.empty:
+                    st.write("Không có dữ liệu.")
+                else:
+                    latest_data = data.tail(8)  # Chỉ lấy dữ liệu mới nhất
+                    html_content = """
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    """
+                    for _, row in latest_data.iterrows():
+                        html_content += format_box(
+                            row['Product'],
+                            row['Sales (15 min)'],
+                            row['Time'].strftime('%H:%M')
+                        )
+                    html_content += "</div>"
+                    st.markdown(html_content, unsafe_allow_html=True)
+        
+            # Lấy dữ liệu bán hàng trong 15 phút gần nhất
+          def update_recent_table_data():
+                global recent_sales_for_table
+                recent_sales_for_table = simulate_new_data(recent_sales_for_table)
+        
+          shopee_placeholder = st.empty()
+          tiktok_placeholder = st.empty()
+          lazada_placeholder = st.empty()
+        
+          def refresh_tables():
+                # Tách dữ liệu theo từng nền tảng
+                shopee_data = recent_sales_for_table[recent_sales_for_table['Platform'] == "Shopee"]
+                tiktok_data = recent_sales_for_table[recent_sales_for_table['Platform'] == "TikTok"]
+                lazada_data = recent_sales_for_table[recent_sales_for_table['Platform'] == "Lazada"]
+        
+                # Hiển thị từng bảng
+                 
+                with shopee_placeholder:
+                    display_table(shopee_data, "Shopee")
+                with tiktok_placeholder:
+                    display_table(tiktok_data, "TikTok")
+                with lazada_placeholder:
+                    display_table(lazada_data, "Lazada")
+
+# Continuous updates
     while True:
-            update_product_boxes()  # Gọi hàm cập nhật box
-            current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu chính
-            
-            update_kpis_and_charts()  # Cập nhật biểu đồ doanh số chính
-            time.sleep(5)  # Cập nhật mỗi 5 giây
+            current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
+            update_kpis_and_charts()  # Cập nhật biểu đồ và KPI
+            update_recent_table_data()
+            refresh_tables()
+            time.sleep(5)
