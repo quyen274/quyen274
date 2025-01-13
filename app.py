@@ -365,31 +365,31 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     current_day_sales = adjust_time(current_day_sales)
     # Tạo placeholder cho box hiển thị bên phải
     shopee_placeholder = st.empty()
-tiktok_placeholder = st.empty()
-lazada_placeholder = st.empty()
+    tiktok_placeholder = st.empty()
+    lazada_placeholder = st.empty()
 
-def format_box(name, value, time):
-    """
-    Tạo format cho box hiển thị (dựa theo thiết kế như trong hình).
-    """
-    return f"""
-    <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 10px; margin: 5px; border-radius: 8px;">
-        <div style="font-weight: bold; font-size: 16px;">{name}</div>
-        <div style="font-size: 14px; color: #333;">{value} sản phẩm</div>
-        <div style="font-size: 12px; color: #666;">{time}</div>
-    </div>
-    """
+    def format_box(name, value, time):
+            """
+            Tạo format cho box hiển thị (dựa theo thiết kế như trong hình).
+            """
+            return f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 10px; margin: 5px; border-radius: 8px;">
+                <div style="font-weight: bold; font-size: 16px;">{name}</div>
+                <div style="font-size: 14px; color: #333;">{value} sản phẩm</div>
+                <div style="font-size: 12px; color: #666;">{time}</div>
+            </div>
+            """
 
-def update_platform_tables():
-    """
-    Cập nhật các bảng riêng biệt cho từng nền tảng (Shopee, TikTok, Lazada).
-    Hiển thị số sản phẩm bán ra trong 15 phút gần nhất.
-    """
-    global current_day_sales
-
-    # Lấy dữ liệu bán hàng trong 15 phút gần nhất
-    latest_time = current_day_sales['Time'].max()
-    recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
+    def update_platform_tables():
+            """
+            Cập nhật các bảng riêng biệt cho từng nền tảng (Shopee, TikTok, Lazada).
+            Hiển thị số sản phẩm bán ra trong 15 phút gần nhất.
+            """
+            global current_day_sales
+        
+            # Lấy dữ liệu bán hàng trong 15 phút gần nhất
+            latest_time = current_day_sales['Time'].max()
+            recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
 
     # Tách dữ liệu theo nền tảng
     shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
