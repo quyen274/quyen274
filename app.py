@@ -363,7 +363,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             data['Time'] = data['Time'] + time_diff
             return data
     current_day_sales = adjust_time(current_day_sales)
-    main_col, box_col = st.columns([3, 1])  # 3/4 và 1/4 màn hình
+main_col, box_col = st.columns([3, 1])  # 3/4 và 1/4 màn hình
 
 # Placeholder cho 3 box hiển thị
 with box_col:
@@ -383,7 +383,7 @@ def update_platform_boxes():
     tiktok_data = latest_sales[latest_sales['Platform'] == 'TikTok']
     lazada_data = latest_sales[latest_sales['Platform'] == 'Lazada']
 
-def format_box(data, platform_name):
+    def format_box(data, platform_name):
         """
         Định dạng nội dung hiển thị cho mỗi box.
         """
