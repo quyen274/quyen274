@@ -408,7 +408,11 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                         )
                     html_content += "</div>"
                     st.markdown(html_content, unsafe_allow_html=True)
-        
+
+          shopee_placeholder = st.empty()
+          tiktok_placeholder = st.empty()
+          lazada_placeholder = st.empty()
+            
             # Lấy dữ liệu bán hàng trong 15 phút gần nhất
           def update_recent_table_data():
                 global recent_sales_for_table
