@@ -6,11 +6,14 @@ import plotly.express as px
 import plotly.graph_objects as go
 import time
 import json
-import openai
+import openaifrom dotenv import load_dotenv
+import os
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
-    
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
 current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
