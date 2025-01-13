@@ -398,7 +398,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     while True:
             update_product_boxes()  # Gọi hàm cập nhật box
             current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu chính
-            simulate_and_update_area()  # Cập nhật biểu đồ miền
-            update_kpis_and_chart()  # Cập nhật biểu đồ doanh số chính
+            
+            update_kpis_and_charts()  # Cập nhật biểu đồ doanh số chính
             time.sleep(5)  # Cập nhật mỗi 5 giây
 
