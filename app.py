@@ -376,7 +376,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             global current_day_sales
         
             # Lấy thông tin bán hàng mới nhất theo nền tảng
-            latest_sales = current_day_sales.groupby(['Platform', 'Product']).sum().reset_index()
+            latest_sales = current_day_sales.groupby(['Platform', 'Product'])['Sales (15 min)'].sum().reset_index()
         
             # Tạo nội dung hiển thị cho từng nền tảng
             shopee_data = latest_sales[latest_sales['Platform'] == 'Shopee']
@@ -391,7 +391,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     return f"### {platform_name}\n- Không có dữ liệu"
                 else:
                     # Lấy sản phẩm bán chạy nhất
-                    top_product = data.iloc[0]
+                    top_product = data.sort_values('Sales (15 min)', ascending=False).iloc[0]
                     return f"""
                     ### {platform_name}
                     - **Sản phẩm:** {top_product['Product']}
