@@ -363,24 +363,56 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             data['Time'] = data['Time'] + time_diff
             return data
     current_day_sales = adjust_time(current_day_sales)
+    main_col, box_col = st.columns([3, 1])  # 3/4 và 1/4 màn hình
+
+# Placeholder cho 3 box hiển thị
+with box_col:
     box_placeholder1 = st.empty()
     box_placeholder2 = st.empty()
-    box_placeholder3 = st.empty()    
-    def update_platform_boxes():
-            global current_day_sales
-        
-            # Tính tổng số lượng bán theo nền tảng
-            sales_by_platform = current_day_sales.groupby('Platform')['Sales (15 min)'].sum()
-        
-            # Hiển thị dữ liệu trong 3 box
-            with box_placeholder1.container():
-                st.metric(label="Số lượng Shopee", value=f"{sales_by_platform.get('Shopee', 0):,.2f}")
-            with box_placeholder2.container():
-                st.metric(label="Số lượng TikTok", value=f"{sales_by_platform.get('TikTok', 0):,.2f}")
-            with box_placeholder3.container():
-                st.metric(label="Số lượng Lazada", value=f"{sales_by_platform.get('Lazada', 0):,.2f}")
-    while True:
-        update_kpis_and_charts()
-        update_platform_boxes()
-        current_day_sales = simulate_new_data(current_day_sales)
-        time.sleep(5)
+    box_placeholder3 = st.empty()
+
+# Hàm cập nhật box hiển thị thông tin bán hàng
+def update_platform_boxes():
+    global current_day_sales
+
+    # Lấy thông tin bán hàng mới nhất theo nền tảng
+    latest_sales = current_day_sales.groupby(['Platform', 'Product']).sum().reset_index()
+
+    # Tạo nội dung hiển thị cho từng nền tảng
+    shopee_data = latest_sales[latest_sales['Platform'] == 'Shopee']
+    tiktok_data = latest_sales[latest_sales['Platform'] == 'TikTok']
+    lazada_data = latest_sales[latest_sales['Platform'] == 'Lazada']
+
+def format_box(data, platform_name):
+        """
+        Định dạng nội dung hiển thị cho mỗi box.
+        """
+        if data.empty:
+            return f"### {platform_name}\n- Không có dữ liệu"
+        else:
+            # Lấy sản phẩm bán chạy nhất
+            top_product = data.iloc[0]
+            return f"""
+            ### {platform_name}
+            - **Sản phẩm:** {top_product['Product']}
+            - **Số lượng bán:** {top_product['Sales (15 min)']}
+            """
+
+    # Cập nhật các box
+    with box_placeholder1.container():
+        st.markdown(format_box(shopee_data, "Shopee"))
+    with box_placeholder2.container():
+        st.markdown(format_box(tiktok_data, "TikTok"))
+    with box_placeholder3.container():
+        st.markdown(format_box(lazada_data, "Lazada"))
+
+# Thêm vào vòng lặp chính
+while True:
+    with main_col:
+        update_kpis_and_chart()  # Cập nhật biểu đồ doanh số chính
+
+    with box_col:
+        update_platform_boxes()  # Cập nhật box hiển thị
+
+    current_day_sales = simulate_new_data(current_day_sales)  # Thêm dữ liệu mới
+    time.sleep(5)
