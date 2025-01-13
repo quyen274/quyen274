@@ -205,7 +205,9 @@ if page == "Phân Tích Sản Phẩm":
     api_key = "pvivrA4CJZmUU7lzOjYVCkxlPdrtn72lmuGLOfKo"  # Thay bằng API Key của bạn
     co = cohere.Client(api_key)
 
-    st.title("Chatbot với Cohere AI")
+   
+
+    st.title("Chatbot với Cohere Chat API")
 
 # Lưu trữ lịch sử chat
     if "messages" not in st.session_state:
@@ -224,16 +226,17 @@ if page == "Phân Tích Sản Phẩm":
             with st.chat_message("user"):
                 st.markdown(prompt)
         
-            # Gửi yêu cầu tới Cohere API
+            # Gửi yêu cầu tới Cohere Chat API
             with st.chat_message("assistant"):
                 holder = st.empty()
                 try:
-                    response = co.generate(
-                        model="command-xlarge-nightly",
-                        prompt=prompt,
+                    # Gửi yêu cầu qua Chat API
+                    response = co.chat(
+                        query=prompt,
+                        examples=[],  # Thêm ví dụ hội thoại nếu cần
                         max_tokens=150
                     )
-                    gpt_response = response.generations[0].text.strip()
+                    gpt_response = response.reply
                 except Exception as e:
                     gpt_response = f"Đã xảy ra lỗi: {e}"
         
