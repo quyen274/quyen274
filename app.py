@@ -420,9 +420,6 @@ def update_platform_tables():
 # Chia màn hình thành 2 phần: biểu đồ bên trái và bảng bên phải
     left_col, right_col = st.columns([3, 1])
 
-    with left_col:
-            # Gọi hàm cập nhật biểu đồ và KPI ở đây
-
     with right_col:
             # Gọi hàm hiển thị bảng
             st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
