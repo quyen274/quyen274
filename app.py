@@ -364,10 +364,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             return data
     current_day_sales = adjust_time(current_day_sales)
    
- # Tạo placeholder cho box hiển thị bên phải
-    shopee_placeholder = st.empty()
-    tiktok_placeholder = st.empty()
-    lazada_placeholder = st.empty()
+
         
     def format_box(name, value, time):
             """
@@ -380,14 +377,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 <div style="font-size: 12px; color: #666;">{time}</div>
             </div>
             """
-
-    def update_recent_data():
-            global recent_data
-            latest_time = current_day_sales['Time'].max()
-            recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
-
-
-    update_recent_data()
 
     # Tách dữ liệu theo nền tảng
     shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
