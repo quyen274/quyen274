@@ -388,7 +388,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     with right_col:
             st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
 
-            def simulate_new_data(data):
+            def simulate_new_data1(data):
                     """
                     Tạo dữ liệu giả lập mới mỗi 5 giây.
                     """
