@@ -217,32 +217,35 @@ if page == "Phân Tích Sản Phẩm":
 
 # Input for user prompt
     if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
-        st.session_state.messages.append({"role": "user", "content": prompt})
+    st.session_state.messages.append({"role": "user", "content": prompt})
 
     # Display user input in chat
-        with st.chat_message("user"):
-             st.markdown(prompt)
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
     # Generate AI response
-        with st.chat_message("assistant"):
-             full_res = ""
-             holder = st.empty()
+    with st.chat_message("assistant"):
+        full_res = ""  # Khởi tạo full_res trước khi sử dụng
+        holder = st.empty()
 
-        # Stream AI response
-             for response in client.chat.completions.create(
-                    model=st.session_state["openai_model"],
-                    messages=[
-                        {"role": m["role"], "content": m["content"]}
-                        for m in st.session_state.messages
-                    ],
-                    stream=True,
-                ):
-                    full_res += (response.choices[0].delta.content or "")
-                    holder.markdown(full_res + "▌")
-        
-             holder.markdown(full_res)
+        try:
+            # Stream AI response
+            for response in client.chat.completions.create(
+                model=st.session_state["openai_model"],
+                messages=[
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ],
+                stream=True,
+            ):
+                full_res += (response.choices[0].delta.content or "")
+                holder.markdown(full_res + "▌")
 
-    # Save AI response to session
+        except Exception as e:
+            st.error(f"Đã xảy ra lỗi khi gọi API: {e}")
+            full_res = "Xin lỗi, ChatGPT không thể xử lý yêu cầu của bạn."
+
+    # Save AI response to session state
     st.session_state.messages.append({"role": "assistant", "content": full_res})
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
