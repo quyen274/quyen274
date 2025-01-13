@@ -364,7 +364,11 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             return data
     current_day_sales = adjust_time(current_day_sales)
    
-
+ # Tạo placeholder cho box hiển thị bên phải
+    shopee_placeholder = st.empty()
+    tiktok_placeholder = st.empty()
+    lazada_placeholder = st.empty()
+        
     def format_box(name, value, time):
             """
             Tạo format cho box hiển thị (dựa theo thiết kế như trong hình).
