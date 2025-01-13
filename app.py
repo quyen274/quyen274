@@ -6,7 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import time
 import json
-from transformers import AutoModelForCausalLM, AutoTokenizer
+
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
