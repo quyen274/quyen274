@@ -410,7 +410,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 # Thêm vào vòng lặp chính
     while True:
         with main_col:
-                update_kpis_and_chart()  # Cập nhật biểu đồ doanh số chính
+                update_kpis_and_charts()  # Cập nhật biểu đồ doanh số chính
         
         with box_col:
                 update_platform_boxes()  # Cập nhật box hiển thị
