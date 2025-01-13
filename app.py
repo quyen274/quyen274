@@ -10,6 +10,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import requests
+import cohere
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
@@ -201,53 +202,47 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
-    st.write("---")
-    st.header("Hỏi đáp cùng ChatGPT")
+    api_key = "pvivrA4CJZmUU7lzOjYVCkxlPdrtn72lmuGLOfKo"  # Thay bằng API Key của bạn
+    co = cohere.Client(api_key)
 
-# Initialize chat state
-    if "openai_model" not in st.session_state:
-        st.session_state["openai_model"] = "gpt-3.5-turbo"
+    st.title("Chatbot với Cohere AI")
 
+# Lưu trữ lịch sử chat
     if "messages" not in st.session_state:
-        st.session_state.messages = []
+            st.session_state["messages"] = []
 
-# Display chat history
+# Hiển thị lịch sử hội thoại
     for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-             st.markdown(message["content"])
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
-# Input for user prompt
-    if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
+# Đầu vào từ người dùng
+    if prompt := st.chat_input("Hãy nhập câu hỏi của bạn:"):
             st.session_state.messages.append({"role": "user", "content": prompt})
         
-            # Display user input in chat
+            # Hiển thị câu hỏi của người dùng
             with st.chat_message("user"):
                 st.markdown(prompt)
         
-            # Generate AI response
+            # Gửi yêu cầu tới Cohere API
             with st.chat_message("assistant"):
-                full_res = ""  # Khởi tạo full_res trước khi sử dụng
                 holder = st.empty()
-        
                 try:
-                    # Stream AI response
-                    for response in client.chat.completions.create(
-                        model=st.session_state["openai_model"],
-                        messages=[
-                            {"role": m["role"], "content": m["content"]}
-                            for m in st.session_state.messages
-                        ],
-                        stream=True,
-                    ):
-                        full_res += (response.choices[0].delta.content or "")
-                        holder.markdown(full_res + "▌")
-        
+                    response = co.generate(
+                        model="command-xlarge-nightly",
+                        prompt=prompt,
+                        max_tokens=150
+                    )
+                    gpt_response = response.generations[0].text.strip()
                 except Exception as e:
-                    st.error(f"Đã xảy ra lỗi khi gọi API: {e}")
-                    full_res = "Xin lỗi, ChatGPT không thể xử lý yêu cầu của bạn."
+                    gpt_response = f"Đã xảy ra lỗi: {e}"
         
-            # Save AI response to session state
-            st.session_state.messages.append({"role": "assistant", "content": full_res})
+                # Hiển thị phản hồi từ Cohere
+                holder.markdown(gpt_response)
+        
+            # Lưu phản hồi vào lịch sử
+            st.session_state.messages.append({"role": "assistant", "content": gpt_response})
+
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
