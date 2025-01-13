@@ -378,27 +378,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             </div>
             """
 
-    # Hàm hiển thị bảng cho từng nền tảng
-    def display_table(data, platform_name, placeholder):
-        with placeholder.container():
-            st.markdown(f"<h3 style='text-align: center;'>{platform_name}</h3>", unsafe_allow_html=True)
-            if data.empty:
-                st.write("Không có dữ liệu.")
-            else:
-                html_content = ""
-                for _, row in data.iterrows():
-                    html_content += format_box(
-                        row['Product'],
-                        row['Sales (15 min)'],
-                        row['Time'].strftime('%H:%M')
-                    )
-                st.markdown(html_content, unsafe_allow_html=True)
-
-    # Hiển thị bảng cho từng nền tảng
-    display_table(shopee_data, "Shopee", shopee_placeholder)
-    display_table(tiktok_data, "TikTok", tiktok_placeholder)
-    display_table(lazada_data, "Lazada", lazada_placeholder)
-
+    
 # Chia màn hình thành 2 phần: biểu đồ bên trái và bảng bên phải
     left_col, right_col = st.columns([3, 1])
 
