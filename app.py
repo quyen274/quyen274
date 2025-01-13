@@ -419,8 +419,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
 # Hiển thị biểu đồ và KPI bên trái
     with left_col:
-            st.title("Báo Cáo Tự Động Về Doanh Số")
-            st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
             update_kpis_and_charts()  # Hàm cập nhật KPI và biểu đồ
             simulate_and_update_area()  # Cập nhật biểu đồ miền
 
