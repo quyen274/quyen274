@@ -14,7 +14,7 @@ import requests
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
 load_dotenv()
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
