@@ -6,17 +6,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 import time
 import json
-from openai import OpenAI
-from dotenv import load_dotenv
-import os
-import requests
-import cohere
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
-load_dotenv()
-client = OpenAI(api_key="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")
 
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
@@ -203,36 +196,6 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
-    model_name = "EleutherAI/gpt-j-6B"  # Hoặc "bigscience/bloom-560m"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-
-    st.title("Chatbot GPT-J với Ngữ Cảnh")
-
-# Lưu trữ lịch sử hội thoại
-    if "chat_history" not in st.session_state:
-            st.session_state["chat_history"] = ""
-
-# Đầu vào từ người dùng
-    user_input = st.text_input("Hãy nhập câu hỏi của bạn:")
-
-    if user_input:
-            # Thêm câu hỏi vào lịch sử hội thoại
-            st.session_state["chat_history"] += f"Người dùng: {user_input}\n"
-        
-            # Tạo prompt với lịch sử hội thoại
-            inputs = tokenizer(st.session_state["chat_history"], return_tensors="pt")
-            outputs = model.generate(inputs.input_ids, max_length=500, pad_token_id=tokenizer.eos_token_id)
-        
-            # Phản hồi từ bot
-            bot_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-            bot_response = bot_response[len(st.session_state["chat_history"]):].strip()
-        
-            # Thêm phản hồi vào lịch sử hội thoại
-            st.session_state["chat_history"] += f"Chatbot: {bot_response}\n"
-        
-            # Hiển thị phản hồi
-            st.write(f"**Chatbot:** {bot_response}")
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
