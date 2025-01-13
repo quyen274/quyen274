@@ -446,9 +446,9 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             update_recent_data()
         
             # Tách dữ liệu theo từng nền tảng
-        shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
-        tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
-        lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
+            shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
+            tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
+            lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
               
             # Hiển thị từng bảng
         display_table(shopee_data, "Shopee")
