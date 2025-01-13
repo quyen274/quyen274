@@ -392,7 +392,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 """
                 Hiển thị bảng cập nhật doanh số cho từng nền tảng.
                 """
-                st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
                 if data.empty:
                     st.write("Không có dữ liệu.")
                 else:
