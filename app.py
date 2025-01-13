@@ -420,13 +420,20 @@ def update_platform_tables():
 # Chia màn hình thành 2 phần: biểu đồ bên trái và bảng bên phải
     left_col, right_col = st.columns([3, 1])
 
+# Cập nhật biểu đồ và KPI bên trái
+    with left_col:
+            st.title("Báo Cáo Tự Động Về Doanh Số")
+            st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
+            update_kpis_and_charts()  # Hàm cập nhật KPI và biểu đồ
+            simulate_and_update_area()  # Cập nhật biểu đồ miền
+
+# Hiển thị bảng cập nhật doanh số bên phải
     with right_col:
-            # Gọi hàm hiển thị bảng
             st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
         
             def display_table(data, platform_name):
                 """
-                Hiển thị bảng cho từng nền tảng.
+                Hiển thị bảng cập nhật doanh số cho từng nền tảng.
                 """
                 st.markdown(f"<h4 style='text-align: left;'>{platform_name}</h4>", unsafe_allow_html=True)
                 if data.empty:
@@ -445,22 +452,22 @@ def update_platform_tables():
     latest_time = current_day_sales['Time'].max()
     recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
 
-    # Tách dữ liệu theo nền tảng
+    # Tách dữ liệu theo từng nền tảng
     shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
     tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
     lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
 
-    # Hiển thị bảng cho từng nền tảng
+    # Hiển thị từng bảng
     display_table(shopee_data, "Shopee")
     display_table(tiktok_data, "TikTok")
     display_table(lazada_data, "Lazada")
 
-# Continuous updates
-while True:
-    current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
-    update_kpis_and_charts()
-    update_platform_tables()
-    time.sleep(5)
+# Vòng lặp cập nhật dữ liệu và giao diện
+    while True:
+            current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
+            update_kpis_and_charts()  # Cập nhật biểu đồ và KPI
+            update_platform_tables()  # Cập nhật bảng nền tảng
+            time.sleep(5)
 
 
 
