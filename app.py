@@ -364,41 +364,77 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             return data
     current_day_sales = adjust_time(current_day_sales)
     # Tạo placeholder cho box hiển thị bên phải
-    box_placeholder = st.sidebar.empty()  # Sử dụng sidebar để hiển thị bên phải màn hình
+    shopee_placeholder = st.empty()
+tiktok_placeholder = st.empty()
+lazada_placeholder = st.empty()
 
-    def update_product_boxes():
-            """
-            Hàm cập nhật box hiển thị tên sản phẩm và số lượng bán mỗi 5 giây.
-            """
-            global current_day_sales, simulation_data_platform
-        
-            # Lấy dữ liệu mới nhất từ biểu đồ miền
-            platform_data = simulation_data_platform.groupby('Platform')['Daily Sales'].sum().reset_index()
-            product_data = simulation_data_product.groupby('Product')['Daily Sales'].sum().reset_index()
-        
-            # Render box
-            with box_placeholder.container():
-                st.markdown("### **Bảng Cập Nhật Doanh Số**")
-                for platform in platforms:
-                    # Dữ liệu cho nền tảng cụ thể
-                    platform_specific_data = product_data[product_data['Product'].isin(
-                        current_day_sales[current_day_sales['Platform'] == platform]['Product']
-                    )]
-        
-                    st.markdown(f"#### **Nền tảng: {platform}**")
-                    for _, row in platform_specific_data.iterrows():
-                        product_name = row['Product']
-                        sales_count = int(row['Daily Sales'])
-        
-                        # Tạo hiển thị kiểu cột dọc với hai phần: Tên sản phẩm và số lượng bán
-                        st.write(f"**{product_name}**: {sales_count} sản phẩm")
-                st.markdown("---")  # Đường ngăn cách giữa các box
+def format_box(name, value, time):
+    """
+    Tạo format cho box hiển thị (dựa theo thiết kế như trong hình).
+    """
+    return f"""
+    <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 10px; margin: 5px; border-radius: 8px;">
+        <div style="font-weight: bold; font-size: 16px;">{name}</div>
+        <div style="font-size: 14px; color: #333;">{value} sản phẩm</div>
+        <div style="font-size: 12px; color: #666;">{time}</div>
+    </div>
+    """
 
-# Điều chỉnh thời gian cập nhật box
-    while True:
-            update_product_boxes()  # Gọi hàm cập nhật box
-            current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu chính
-            
-            update_kpis_and_charts()  # Cập nhật biểu đồ doanh số chính
-            time.sleep(5)  # Cập nhật mỗi 5 giây
+def update_platform_tables():
+    """
+    Cập nhật các bảng riêng biệt cho từng nền tảng (Shopee, TikTok, Lazada).
+    Hiển thị số sản phẩm bán ra trong 15 phút gần nhất.
+    """
+    global current_day_sales
+
+    # Lấy dữ liệu bán hàng trong 15 phút gần nhất
+    latest_time = current_day_sales['Time'].max()
+    recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
+
+    # Tách dữ liệu theo nền tảng
+    shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
+    tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
+    lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
+
+    # Hàm hiển thị bảng cho từng nền tảng
+    def display_table(data, platform_name, placeholder):
+        with placeholder.container():
+            st.markdown(f"<h3 style='text-align: center;'>{platform_name}</h3>", unsafe_allow_html=True)
+            if data.empty:
+                st.write("Không có dữ liệu.")
+            else:
+                html_content = ""
+                for _, row in data.iterrows():
+                    html_content += format_box(
+                        row['Product'],
+                        row['Sales (15 min)'],
+                        row['Time'].strftime('%H:%M')
+                    )
+                st.markdown(html_content, unsafe_allow_html=True)
+
+    # Hiển thị bảng cho từng nền tảng
+    display_table(shopee_data, "Shopee", shopee_placeholder)
+    display_table(tiktok_data, "TikTok", tiktok_placeholder)
+    display_table(lazada_data, "Lazada", lazada_placeholder)
+
+# Chia màn hình thành 2 phần: biểu đồ bên trái và bảng bên phải
+    left_col, right_col = st.columns([3, 1])
+
+    with left_col:
+            # Gọi hàm cập nhật biểu đồ và KPI ở đây
+            update_kpis_and_charts()
+           
+
+    with right_col:
+            # Gọi hàm hiển thị bảng ở đây
+            update_platform_tables()
+
+# Continuous updates
+while True:
+    current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
+    update_kpis_and_charts()
+    update_platform_tables()
+    time.sleep(5)
+
+
 
