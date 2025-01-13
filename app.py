@@ -420,7 +420,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 # Chia màn hình thành 2 phần: biểu đồ bên trái và bảng bên phải
     left_col, right_col = st.columns([3, 1])
 
-# Cập nhật biểu đồ và KPI bên trái
+# Hiển thị biểu đồ và KPI bên trái
     with left_col:
             st.title("Báo Cáo Tự Động Về Doanh Số")
             st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
@@ -449,25 +449,29 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     st.markdown(html_content, unsafe_allow_html=True)
 
     # Lấy dữ liệu bán hàng trong 15 phút gần nhất
-    latest_time = current_day_sales['Time'].max()
-    recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
+            def update_recent_data():
+                global recent_data
+                latest_time = current_day_sales['Time'].max()
+                recent_data = current_day_sales[current_day_sales['Time'] > (latest_time - pd.Timedelta(minutes=15))]
+        
+            # Cập nhật dữ liệu bán hàng trong vòng 15 phút
+            update_recent_data()
+        
+            # Tách dữ liệu theo từng nền tảng
+            shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
+            tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
+            lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
+        
+            # Hiển thị từng bảng
+            display_table(shopee_data, "Shopee")
+            display_table(tiktok_data, "TikTok")
+            display_table(lazada_data, "Lazada")
 
-    # Tách dữ liệu theo từng nền tảng
-    shopee_data = recent_data[recent_data['Platform'] == "Shopee"]
-    tiktok_data = recent_data[recent_data['Platform'] == "TikTok"]
-    lazada_data = recent_data[recent_data['Platform'] == "Lazada"]
-
-    # Hiển thị từng bảng
-    display_table(shopee_data, "Shopee")
-    display_table(tiktok_data, "TikTok")
-    display_table(lazada_data, "Lazada")
-
-# Vòng lặp cập nhật dữ liệu và giao diện
+# Continuous updates
     while True:
             current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
             update_kpis_and_charts()  # Cập nhật biểu đồ và KPI
-            update_platform_tables()  # Cập nhật bảng nền tảng
+            update_recent_data()  # Cập nhật dữ liệu 15 phút gần nhất
             time.sleep(5)
-
-
-
+        
+        
