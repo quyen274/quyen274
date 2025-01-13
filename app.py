@@ -425,8 +425,8 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 lazada_data = recent_sales_for_table[recent_sales_for_table['Platform'] == "Lazada"]
         
                 # Hiển thị từng bảng
+        st.markdown("<h4 style='text-align: center;'>Shopee</h4>", unsafe_allow_html=True)      
                 with shopee_placeholder:
-                st.markdown("<h4 style='text-align: center;'>Shopee</h4>", unsafe_allow_html=True)    
                     display_table(shopee_data, "Shopee")
                 with tiktok_placeholder:
                     display_table(tiktok_data, "TikTok")
