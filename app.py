@@ -372,18 +372,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             box_placeholder3 = st.empty()
 
 # Hàm cập nhật box hiển thị thông tin bán hàng
-    def update_platform_boxes():
-            global current_day_sales
-        
-            # Lấy thông tin bán hàng mới nhất theo nền tảng
-            latest_sales = current_day_sales.groupby(['Platform', 'Product'])['Sales (15 min)'].sum().reset_index()
-        
-            # Tạo nội dung hiển thị cho từng nền tảng
-            shopee_data = latest_sales[latest_sales['Platform'] == 'Shopee']
-            tiktok_data = latest_sales[latest_sales['Platform'] == 'TikTok']
-            lazada_data = latest_sales[latest_sales['Platform'] == 'Lazada']
-
-            def format_box(data, platform_name):
+    def format_box(data, platform_name):
                 """
                 Định dạng nội dung hiển thị cho mỗi box.
                 """
@@ -396,15 +385,27 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                     ### {platform_name}
                     - **Sản phẩm:** {top_product['Product']}
                     - **Số lượng bán:** {top_product['Sales (15 min)']}
-                    """
+                    """    
+    def update_platform_boxes():
+            global current_day_sales
+        
+            # Lấy thông tin bán hàng mới nhất theo nền tảng
+            latest_sales = current_day_sales.groupby(['Platform', 'Product'])['Sales (15 min)'].sum().reset_index()
+        
+            # Tạo nội dung hiển thị cho từng nền tảng
+            shopee_data = latest_sales[latest_sales['Platform'] == 'Shopee']
+            tiktok_data = latest_sales[latest_sales['Platform'] == 'TikTok']
+            lazada_data = latest_sales[latest_sales['Platform'] == 'Lazada']
 
-    # Cập nhật các box
-    with box_placeholder1.container():
-        st.markdown(format_box(shopee_data, "Shopee"))
-    with box_placeholder2.container():
-        st.markdown(format_box(tiktok_data, "TikTok"))
-    with box_placeholder3.container():
-        st.markdown(format_box(lazada_data, "Lazada"))
+            
+
+            # Cập nhật các box
+            with box_placeholder1.container():
+                st.markdown(format_box(shopee_data, "Shopee"))
+            with box_placeholder2.container():
+                st.markdown(format_box(tiktok_data, "TikTok"))
+            with box_placeholder3.container():
+                st.markdown(format_box(lazada_data, "Lazada"))
 
 # Thêm vào vòng lặp chính
     while True:
