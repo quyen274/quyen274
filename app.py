@@ -388,7 +388,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     with right_col:
             st.markdown("<h3 style='text-align: center;'>Bảng Cập Nhật Doanh Số</h3>", unsafe_allow_html=True)
 
-            
             def display_table(data, platform_name):
                     """
                     Hiển thị bảng cập nhật doanh số cho từng nền tảng, với tối đa 8 dòng gần nhất.
@@ -406,6 +405,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                                 row['Time'].strftime('%H:%M')
                             )
                         html_content += "</div>"
+                        # Hiển thị HTML đã render
                         st.markdown(html_content, unsafe_allow_html=True)
 
      
