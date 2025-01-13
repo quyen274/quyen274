@@ -454,10 +454,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
                 display_table(shopee_data, "Shopee")
                 display_table(tiktok_data, "TikTok")
                 display_table(lazada_data, "Lazada")
-            while True:
-                    current_day_sales = simulate_new_data(current_day_sales)  # Fake dữ liệu mới
-                    update_recent_data()  # Cập nhật bảng hiển thị
-                    time.sleep(5)  # Tạm dừng 5 giây
+            
 
 # Continuous updates
     while True:
