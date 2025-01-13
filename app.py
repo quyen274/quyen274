@@ -465,7 +465,6 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
     while True:
             current_day_sales = simulate_new_data(current_day_sales)  # Cập nhật dữ liệu
             update_kpis_and_charts()  # Cập nhật biểu đồ và KPI
-            update_recent_data()  # Cập nhật dữ liệu 15 phút gần nhất
             time.sleep(5)
         
         
