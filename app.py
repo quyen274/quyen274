@@ -14,9 +14,6 @@ current_day_sales = pd.read_csv('current_day_sales.csv')
 current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
 
 
-
-daily_sales_by_platform = last_month_data.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
-
 # Load data
 daily_sales = pd.read_csv('daily_sales.csv')
 cart_data = pd.read_csv('items_in_cart.csv')
@@ -30,6 +27,7 @@ products = current_day_sales['Product'].unique()
 
 last_month_start = daily_sales['Date'].max() - pd.Timedelta(days=30)
 last_month_data = daily_sales[daily_sales['Date'] >= last_month_start]
+daily_sales_by_platform = last_month_data.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
 
 # Streamlit setup
 st.set_page_config(page_title="Phân Tích Sản Phẩm và Báo Cáo Doanh Số", layout="wide")
