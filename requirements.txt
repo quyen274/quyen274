@@ -10,3 +10,6 @@ streamlit-option-menu
 selenium
 playwright
 plotly
+transformers
+torch
+sentencepiece
