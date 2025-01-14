@@ -11,5 +11,5 @@ selenium
 playwright
 plotly
 python-dotenv
-openai==1.0.1
+openai>=1.0.0
 flask
