@@ -196,7 +196,7 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
-    API_URL = "https://your-space.hf.space/predict"
+    API_URL = "https://huggingface.co/spaces/quyennv21/cuoiki"
 
     st.title("Tích Hợp Gradio App vào Streamlit")
 
