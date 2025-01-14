@@ -10,7 +10,7 @@ import os
 import openai
 from dotenv import load_dotenv
 from openai import OpenAI
-
+import datetime
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
@@ -529,6 +529,16 @@ if st.button("Gửi") and user_input.strip():
 
     # Thêm phản hồi của AI vào lịch sử hội thoại
     st.session_state.messages.append({"role": "assistant", "content": response})
+        
+if user_input.lower() in ["hôm nay là ngày gì", "hôm nay là ngày mấy", "ngày hôm nay"]:
+    today = datetime.datetime.now().strftime("%d/%m/%Y")
+    response = f"Hôm nay là ngày {today}."
+    st.session_state.messages.append({"role": "assistant", "content": response})
+else:
+    # Xử lý các câu hỏi khác qua OpenAI API
+    with st.spinner("Đang xử lý..."):
+        response = get_completion(st.session_state.messages, client)
+    st.session_state.messages.append({"role": "assistant", "content": response})        
 
 # Hiển thị lịch sử hội thoại
 st.write("### Lịch sử hội thoại")
