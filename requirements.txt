@@ -13,3 +13,4 @@ plotly
 transformers
 torch
 sentencepiece
+huggingface_hub
