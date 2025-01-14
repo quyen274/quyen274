@@ -196,35 +196,29 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
-    API_URL = "https://huggingface.co/spaces/quyennv21/cuoiki"
+    API_URL = "https://api-inference.huggingface.co/models/bigscience/bloom-560m"
+    headers = {"Authorization": f"Bearer your_huggingface_api_key"}  # Thay bằng API Key của bạn
 
-    st.title("Tích Hợp Gradio App vào Streamlit")
+    def query(payload):
+            response = requests.post(API_URL, headers=headers, json=payload)
+            return response.json()
 
-    if "messages" not in st.session_state:
-            st.session_state["messages"] = []
+# Giao diện người dùng với Streamlit
+    st.title("Chat Bot với Hugging Face API")
 
-# Hiển thị lịch sử hội thoại
-    for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-
-# Nhập câu hỏi từ người dùng
-    user_input = st.text_input("Hãy nhập câu hỏi của bạn:")
-
-    if user_input:
-            st.session_state.messages.append({"role": "user", "content": user_input})
-        
-            # Gửi câu hỏi tới Gradio App qua API
-            with st.chat_message("assistant"):
-                try:
-                    response = requests.post(API_URL, json={"data": [user_input]})
-                    response.raise_for_status()
-                    bot_response = response.json()["data"][0]
-                except Exception as e:
-                    bot_response = f"Đã xảy ra lỗi: {e}"
-        
-                st.markdown(bot_response)
-                st.session_state.messages.append({"role": "assistant", "content": bot_response})
+    user_input = st.text_input("Nhập câu hỏi của bạn:", placeholder="Hãy hỏi tôi bất cứ điều gì!")
+    if st.button("Hỏi"):
+            if user_input.strip():
+                with st.spinner("Đang xử lý..."):
+                    payload = {"inputs": user_input, "parameters": {"max_length": 150, "temperature": 0.7}}
+                    response = query(payload)
+                    if "error" in response:
+                        st.error("Đã xảy ra lỗi với mô hình.")
+                    else:
+                        st.success("Trả lời:")
+                        st.write(response[0]["generated_text"])
+            else:
+                st.warning("Vui lòng nhập câu hỏi trước khi bấm nút Hỏi.")
 
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
