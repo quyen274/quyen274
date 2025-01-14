@@ -1,0 +1,76 @@
+{
+    "api": {
+        "models": {
+            
+
+            "Mistral-Nemo-Instruct-2407": {
+                "type": "Text Generation",
+                "api_url": "https://api-inference.huggingface.co/models/mistralai/Mistral-Nemo-Instruct-2407/v1/chat/completions",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "x-use-cache": "false",
+                    "config": {
+                        "comment": "This section runs Python code. It retrieves the API key from your environment using 'os'. You can use this for Authorization headers or replace it with another type of headers, like 'ApiKey'.",
+                        "Authorization": "Bearer os.environ.get('auth')"
+                }
+                }
+            },
+
+           "SmallThinker-3B-Preview": {
+                "type": "Text Generation",
+                "api_url": "https://api-inference.huggingface.co/models/PowerInfer/SmallThinker-3B-Preview/v1/chat/completions",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "x-use-cache": "false",
+                    "config": {
+                        "comment": "This section runs Python code. It retrieves the API key from your environment using 'os'. You can use this for Authorization headers or replace it with another type of headers, like 'ApiKey'.",
+                        "Authorization": "Bearer os.environ.get('auth')"
+                }
+                }
+            },
+
+            "Phi-3.5-mini-instruct": {
+                "type": "Text Generation",
+                "api_url": "https://api-inference.huggingface.co/models/microsoft/Phi-3.5-mini-instruct/v1/chat/completions",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "x-use-cache": "false",
+                    "config": {
+                        "comment": "This section runs Python code. It retrieves the API key from your environment using 'os'. You can use this for Authorization headers or replace it with another type of headers, like 'ApiKey'.",
+                        "Authorization": "Bearer os.environ.get('auth')"
+                }
+                }
+            },
+
+            "Llama-3.2-11B-Vision-Instruct": {
+                "type": "image-text-to-text",
+                "api_url": "https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-11B-Vision-Instruct/v1/chat/completions",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "x-use-cache": "false",
+                    "config": {
+                        "comment": "This section runs Python code. It retrieves the API key from your environment using 'os'. You can use this for Authorization headers or replace it with another type of headers, like 'ApiKey'.",
+                        "Authorization": "Bearer os.environ.get('auth')"
+                }
+                }
+            },
+
+            
+            "Meta-Llama-3-8B-Instruct": {
+                "type": "Text Generation",
+                "api_url": "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct/v1/chat/completions",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "x-use-cache": "false",
+                    "config": {
+                        "comment": "This section runs Python code. It retrieves the API key from your environment using 'os'. You can use this for Authorization headers or replace it with another type of headers, like 'ApiKey'.",
+                        "Authorization": "Bearer os.environ.get('auth')"
+                }
+                }
+            }
+
+
+        }
+    },
+    "handle_stream": true
+}
