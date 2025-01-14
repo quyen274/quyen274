@@ -199,7 +199,34 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
-    
+
+    openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
+
+    def generate_response(prompt):
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                return response.choices[0].message.content.strip()
+            except Exception as e:
+                return f"Error: {str(e)}"
+
+# Cấu hình ứng dụng Streamlit
+    st.title("Chatbot với OpenAI và Streamlit")
+    st.write("Trò chuyện với chatbot AI!")
+
+# Hộp nhập liệu cho người dùng
+    user_input = st.text_input("Bạn:", "")
+
+# Tạo phản hồi khi người dùng gửi câu hỏi
+    if st.button("Gửi"):
+            if user_input.strip():
+                with st.spinner("Đang tạo phản hồi..."):
+                    response = generate_response(user_input)
+                st.text_area("Chatbot:", value=response, height=200)
+            else:
+                st.warning("Vui lòng nhập tin nhắn!")
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
     st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
@@ -462,30 +489,4 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             time.sleep(5)
 
 
-openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
 
-def generate_response(prompt):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"Error: {str(e)}"
-
-# Cấu hình ứng dụng Streamlit
-st.title("Chatbot với OpenAI và Streamlit")
-st.write("Trò chuyện với chatbot AI!")
-
-# Hộp nhập liệu cho người dùng
-user_input = st.text_input("Bạn:", "")
-
-# Tạo phản hồi khi người dùng gửi câu hỏi
-if st.button("Gửi"):
-    if user_input.strip():
-        with st.spinner("Đang tạo phản hồi..."):
-            response = generate_response(user_input)
-        st.text_area("Chatbot:", value=response, height=200)
-    else:
-        st.warning("Vui lòng nhập tin nhắn!")
