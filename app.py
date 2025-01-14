@@ -457,3 +457,38 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             update_recent_table_data()
             refresh_tables()
             time.sleep(5)
+
+
+# Hugging Face API setup
+API_URL = "https://api-inference.huggingface.co/models/microsoft/Phi-3.5-mini-instruct"
+headers = {"Authorization": "Bearer YOUR_HUGGINGFACE_API_TOKEN"}
+
+def query_huggingface(payload):
+    response = requests.post(API_URL, headers=headers, json=payload)
+    return response.json()
+
+# Streamlit App
+st.title("Chatbot powered by Hugging Face")
+if "messages" not in st.session_state:
+    st.session_state["messages"] = []
+
+# User input
+user_input = st.text_input("You:", "")
+
+if user_input:
+    # Add user message
+    st.session_state["messages"].append({"role": "user", "content": user_input})
+
+    # Call Hugging Face API
+    response = query_huggingface({"inputs": user_input})
+    bot_message = response.get("generated_text", "Bot không thể trả lời ngay bây giờ.")
+
+    # Add bot message
+    st.session_state["messages"].append({"role": "bot", "content": bot_message})
+
+# Display chat messages
+for msg in st.session_state["messages"]:
+    if msg["role"] == "user":
+        st.markdown(f"**You:** {msg['content']}")
+    else:
+        st.markdown(f"**Bot:** {msg['content']}")
