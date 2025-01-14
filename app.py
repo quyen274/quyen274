@@ -459,36 +459,46 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             update_recent_table_data()
             refresh_tables()
             time.sleep(5)
-try:
-    openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
-except KeyError:
-    st.error("API Key không được tìm thấy trong 'st.secrets'. Hãy kiểm tra lại.")
+# Đọc API key từ secrets
+openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
 
-# Hàm gọi API
-def generate_response(prompt):
+# Hàm gọi OpenAI API
+def generate_response(messages):
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
+            messages=messages,
         )
         return response.choices[0].message["content"].strip()
     except Exception as e:
         return f"Lỗi: {str(e)}"
 
+# Khởi tạo session state cho lịch sử hội thoại
+if "messages" not in st.session_state:
+    st.session_state.messages = [{"role": "system", "content": "Bạn là trợ lý AI."}]
+
 # Giao diện Streamlit
-st.title("Chatbot với OpenAI trên Streamlit Cloud")
+st.title("Chatbot với Lịch sử Hội thoại")
 
 # Lấy đầu vào từ người dùng
 user_input = st.text_input("Bạn:", "")
 
-# Tạo phản hồi
-if st.button("Gửi"):
-    if user_input:
-        with st.spinner("Đang xử lý..."):
-            output = generate_response(user_input)
-        st.text_area("Chatbot:", value=output, height=200)
-    else:
-        st.warning("Hãy nhập nội dung để trò chuyện!")
+if st.button("Gửi") and user_input.strip():
+    # Thêm câu hỏi của người dùng vào lịch sử hội thoại
+    st.session_state.messages.append({"role": "user", "content": user_input})
+
+    # Gọi API để tạo phản hồi
+    with st.spinner("Đang xử lý..."):
+        response = generate_response(st.session_state.messages)
+
+    # Thêm phản hồi của chatbot vào lịch sử hội thoại
+    st.session_state.messages.append({"role": "assistant", "content": response})
+
+# Hiển thị lịch sử hội thoại
+st.write("### Lịch sử hội thoại")
+for message in st.session_state.messages:
+    role = "Bạn" if message["role"] == "user" else "Chatbot"
+    st.write(f"**{role}:** {message['content']}")
 
 
 
