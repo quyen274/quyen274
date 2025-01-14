@@ -462,34 +462,30 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             time.sleep(5)
 
 
-load_dotenv()
-
-# Set OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
 
 def generate_response(prompt):
-    """Function to interact with OpenAI API and fetch the response."""
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
         )
-        return response['choices'][0]['message']['content'].strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
         return f"Error: {str(e)}"
 
-# Streamlit app setup
-st.title("Chatbot with OpenAI and Streamlit")
-st.write("Talk to the AI-powered chatbot!")
+# Cấu hình ứng dụng Streamlit
+st.title("Chatbot với OpenAI và Streamlit")
+st.write("Trò chuyện với chatbot AI!")
 
-# Input box for user query
-user_input = st.text_input("You:", "")
+# Hộp nhập liệu cho người dùng
+user_input = st.text_input("Bạn:", "")
 
-# Generate response when user inputs a query
-if st.button("Submit"):
-    if user_input.strip() != "":
-        with st.spinner("Generating response..."):
+# Tạo phản hồi khi người dùng gửi câu hỏi
+if st.button("Gửi"):
+    if user_input.strip():
+        with st.spinner("Đang tạo phản hồi..."):
             response = generate_response(user_input)
         st.text_area("Chatbot:", value=response, height=200)
     else:
-        st.warning("Please enter a message!")
+        st.warning("Vui lòng nhập tin nhắn!")
