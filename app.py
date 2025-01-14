@@ -6,6 +6,9 @@ import plotly.graph_objects as go
 import time
 import json
 import requests
+import os
+import opena
+from dotenv import load_dotenv
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
@@ -458,31 +461,46 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             time.sleep(5)
 
 
-API_URL = "https://generativeai.googleapis.com/v1beta2/models/gemini-1_5:predict"
-API_KEY = "AIzaSyB_HOUCEy8wCXq5WORDAnpKb3CvkFm-_z4"  # Thay bằng API Key của bạn
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Hàm gọi API Gemini 1.5
-def query_gemini(prompt):
-    headers = {"Content-Type": "application/json"}
-    params = {"key": API_KEY}
-    data = {
-        "model": "gemini-1.5",
-        "prompt": prompt,
-        "maxOutputTokens": 100,
-        "temperature": 0.7
-    }
-    response = requests.post(API_URL, headers=headers, params=params, json=data)
-
-    # Kiểm tra trạng thái HTTP
-    if response.status_code != 200:
-        st.error(f"Error: {response.status_code} - {response.text}")
-        return {"error": f"HTTP {response.status_code}"}
-
-    # Kiểm tra phản hồi JSON
+# Hàm gửi yêu cầu tới OpenAI API
+def generate_response(prompt):
     try:
-        return response.json()
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # Bạn có thể sử dụng "gpt-4" nếu có quyền truy cập
+            messages=[
+                {"role": "system", "content": "Bạn là một trợ lý AI."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.7,
+            max_tokens=150,
+        )
+        return response.choices[0].message["content"]
     except Exception as e:
-        st.error(f"Failed to parse JSON: {e}")
-        st.error(f"Response text: {response.text}")
-        return {"error": "Invalid JSON"}
+        return f"Lỗi: {str(e)}"
+
+# Giao diện Streamlit
+st.title("Chatbot AI với OpenAI API")
+st.write("Nhập câu hỏi để bắt đầu trò chuyện với chatbot.")
+
+# Lưu lịch sử hội thoại
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+# Khung nhập liệu
+user_input = st.text_input("Bạn:", "")
+
+# Khi người dùng gửi tin nhắn
+if user_input:
+    bot_response = generate_response(user_input)
+    st.session_state.history.append(("Bạn", user_input))
+    st.session_state.history.append(("Chatbot", bot_response))
+
+# Hiển thị lịch sử hội thoại
+for sender, message in st.session_state.history:
+    st.markdown(f"**{sender}:** {message}")
+
+# Nhắc người dùng
+st.write("Bạn có thể tiếp tục trò chuyện ở khung trên.")
 
