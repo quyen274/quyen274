@@ -459,34 +459,49 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             time.sleep(5)
 
 
-# Hugging Face API setup
-API_URL = "https://api-inference.huggingface.co/models/microsoft/Phi-3.5-mini-instruct"
-headers = {"Authorization": "Bearer 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"}
+API_URL = "https://generativeai.googleapis.com/v1beta2/models/gemini-1_5:predict"
+API_KEY = "AIzaSyB_HOUCEy8wCXq5WORDAnpKb3CvKFm_-_z4"  # Thay bằng API Key của bạn
 
-def query_huggingface(payload):
-    response = requests.post(API_URL, headers=headers, json=payload)
+# Hàm gọi API Gemini 1.5
+def query_gemini(prompt):
+    headers = {"Content-Type": "application/json"}
+    params = {"key": API_KEY}
+    data = {
+        "model": "gemini-1.5",
+        "prompt": prompt,
+        "maxOutputTokens": 100,
+        "temperature": 0.7
+    }
+    response = requests.post(API_URL, headers=headers, params=params, json=data)
     return response.json()
 
-# Streamlit App
-st.title("Chatbot powered by Hugging Face")
+# Giao diện Streamlit
+st.title("Chatbot with Gemini 1.5 API")
+
+# Lưu lịch sử hội thoại
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
-# User input
-user_input = st.text_input("You:", "")
+# Giao diện nhập liệu
+user_input = st.text_input("You:")
 
 if user_input:
-    # Add user message
+    # Thêm câu hỏi người dùng vào lịch sử
     st.session_state["messages"].append({"role": "user", "content": user_input})
-
-    # Call Hugging Face API
-    response = query_huggingface({"inputs": user_input})
-    bot_message = response.get("generated_text", "Bot không thể trả lời ngay bây giờ.")
-
-    # Add bot message
+    
+    # Gọi API Gemini 1.5
+    response = query_gemini(user_input)
+    
+    # Xử lý phản hồi từ API
+    if "candidates" in response and len(response["candidates"]) > 0:
+        bot_message = response["candidates"][0]["output"]
+    else:
+        bot_message = "Bot không thể trả lời ngay bây giờ."
+    
+    # Thêm câu trả lời của bot vào lịch sử
     st.session_state["messages"].append({"role": "bot", "content": bot_message})
 
-# Display chat messages
+# Hiển thị lịch sử hội thoại
 for msg in st.session_state["messages"]:
     if msg["role"] == "user":
         st.markdown(f"**You:** {msg['content']}")
