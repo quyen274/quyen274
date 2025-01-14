@@ -10,9 +10,5 @@ streamlit-option-menu
 selenium
 playwright
 plotly
-transformers
-torch
-sentencepiece
-huggingface_hub
-requests
-transformers
+python-dotenv
+openai
