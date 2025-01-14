@@ -488,7 +488,7 @@ if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
         full_response = ""
         response_holder = st.empty()
 
-       try:
+        try:
             for response in openai.ChatCompletion.acreate(
                 model=st.session_state.openai_model,
                 messages=[
