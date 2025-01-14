@@ -6,7 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import time
 import json
-
+import request
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
@@ -196,7 +196,36 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
+    API_URL = "https://your-space.hf.space/predict"
+
+    st.title("Tích Hợp Gradio App vào Streamlit")
+
+    if "messages" not in st.session_state:
+            st.session_state["messages"] = []
+
+# Hiển thị lịch sử hội thoại
+    for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+
+# Nhập câu hỏi từ người dùng
+    user_input = st.text_input("Hãy nhập câu hỏi của bạn:")
+
+    if user_input:
+            st.session_state.messages.append({"role": "user", "content": user_input})
         
+            # Gửi câu hỏi tới Gradio App qua API
+            with st.chat_message("assistant"):
+                try:
+                    response = requests.post(API_URL, json={"data": [user_input]})
+                    response.raise_for_status()
+                    bot_response = response.json()["data"][0]
+                except Exception as e:
+                    bot_response = f"Đã xảy ra lỗi: {e}"
+        
+                st.markdown(bot_response)
+                st.session_state.messages.append({"role": "assistant", "content": bot_response})
+
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
     st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
