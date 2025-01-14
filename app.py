@@ -463,13 +463,22 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 api_key = st.secrets["openai"]["OPENAI_API_KEY"]
 
 # Khởi tạo client OpenAI
-client = OpenAI(
-    api_key=api_key  # API key từ secrets
-)
+client = OpenAI(api_key=api_key)
 
-def get_completion(prompt: str, client_instance: OpenAI, model: str = "gpt-3.5-turbo") -> str:
-    """Gửi prompt tới OpenAI API và nhận phản hồi"""
-    messages = [{"role": "user", "content": prompt}]
+def trim_messages(messages, max_tokens=3000):
+    """Cắt giảm tin nhắn để đảm bảo không vượt quá tổng số tokens."""
+    current_tokens = sum(len(message["content"].split()) for message in messages)
+    while current_tokens > max_tokens:
+        if len(messages) > 1 and messages[0]["role"] == "system":
+            messages.pop(1)  # Bỏ tin nhắn cũ nhất ngoài tin nhắn hệ thống
+        else:
+            messages.pop(0)
+        current_tokens = sum(len(message["content"].split()) for message in messages)
+    return messages
+
+def get_completion(messages, client_instance, model="gpt-3.5-turbo"):
+    """Gửi prompt tới OpenAI API và nhận phản hồi."""
+    messages = trim_messages(messages)
     response = client_instance.chat.completions.create(
         messages=messages,
         model=model,
@@ -478,17 +487,31 @@ def get_completion(prompt: str, client_instance: OpenAI, model: str = "gpt-3.5-t
     )
     return response.choices[0].message.content.strip()
 
-# Khởi tạo Streamlit
+# Khởi tạo lịch sử hội thoại trong session state
+if "messages" not in st.session_state:
+    st.session_state.messages = [{"role": "system", "content": "Bạn là một trợ lý AI."}]
+
+# Giao diện Streamlit
 st.title("Chatbot with OpenAI and Streamlit")
 
 # Lấy đầu vào từ người dùng
 user_input = st.text_input("Bạn:", "")
 
 if st.button("Gửi") and user_input.strip():
-    with st.spinner("Đang xử lý..."):
-        # Gọi hàm get_completion
-        response = get_completion(user_input, client)
-    st.text_area("Chatbot:", value=response, height=800)
+    # Thêm câu hỏi của người dùng vào lịch sử hội thoại
+    st.session_state.messages.append({"role": "user", "content": user_input})
 
+    with st.spinner("Đang xử lý..."):
+        # Gọi API để tạo phản hồi
+        response = get_completion(st.session_state.messages, client)
+
+    # Thêm phản hồi của AI vào lịch sử hội thoại
+    st.session_state.messages.append({"role": "assistant", "content": response})
+
+# Hiển thị lịch sử hội thoại
+st.write("### Lịch sử hội thoại")
+for message in st.session_state.messages:
+    role = "Bạn" if message["role"] == "user" else "Chatbot"
+    st.write(f"**{role}:** {message['content']}")
 
 
