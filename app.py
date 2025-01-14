@@ -9,7 +9,7 @@ import requests
 import os
 import openai
 from dotenv import load_dotenv
-from openai import OpenAI
+
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
@@ -463,50 +463,35 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
 
 load_dotenv()
+
+# Set OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Hàm gửi yêu cầu tới OpenAI API
-st.title("ProtonX x ChatGPT")
+def generate_response(prompt):
+    """Function to interact with OpenAI API and fetch the response."""
+    try:
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=prompt,
+            max_tokens=150,
+            temperature=0.7,
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        return f"Error: {str(e)}"
 
-# Quản lý trạng thái
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "openai_model" not in st.session_state:
-    st.session_state.openai_model = "gpt-3.5-turbo"
+# Streamlit app setup
+st.title("Chatbot with OpenAI and Streamlit")
+st.write("Talk to the AI-powered chatbot!")
 
-# Hiển thị lịch sử hội thoại
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# Input box for user query
+user_input = st.text_input("You:", "")
 
-# Xử lý khi người dùng nhập
-if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        full_response = ""
-        response_holder = st.empty()
-
-        try:
-            # Gửi yêu cầu tới OpenAI API
-            response = openai.ChatCompletion.create(
-                model=st.session_state.openai_model,
-                messages=[
-                    {"role": msg["role"], "content": msg["content"]}
-                    for msg in st.session_state.messages
-                ],
-                temperature=0.7,
-                stream=False,  # Nếu bạn không cần stream, đặt stream=False
-            )
-
-            # Lấy phản hồi từ API
-            full_response = response.choices[0].message["content"]
-            response_holder.markdown(full_response)
-
-            # Lưu phản hồi vào trạng thái
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
-
-        except Exception as e:
-            st.error(f"Lỗi khi gọi OpenAI API: {e}")
+# Generate response when user inputs a query
+if st.button("Submit"):
+    if user_input.strip() != "":
+        with st.spinner("Generating response..."):
+            response = generate_response(user_input)
+        st.text_area("Chatbot:", value=response, height=200)
+    else:
+        st.warning("Please enter a message!")
