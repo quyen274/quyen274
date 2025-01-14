@@ -465,7 +465,7 @@ openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
 # Hàm gọi OpenAI API
 def generate_response(messages):
     try:
-        response = openai.ChatCompletions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=messages,
         )
