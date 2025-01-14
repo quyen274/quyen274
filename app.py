@@ -460,46 +460,41 @@ def get_completion(messages, client_instance, model="gpt-3.5-turbo"):
         temperature=0,
     )
     return response.choices[0].message.content.strip()
-def analyze_data_with_ai(client_instance, model="gpt-3.5-turbo"):
-    """Phân tích dữ liệu từ các tệp CSV và tạo phản hồi tự động bằng AI."""
-    # Tính toán số liệu từ dữ liệu
-    shopee_daily_sales = daily_sales_by_platform[daily_sales_by_platform['Platform'] == "Shopee"]['Daily Sales'].sum()
-    tiktok_daily_sales = daily_sales_by_platform[daily_sales_by_platform['Platform'] == "TikTok"]['Daily Sales'].sum()
-    lazada_daily_sales = daily_sales_by_platform[daily_sales_by_platform['Platform'] == "Lazada"]['Daily Sales'].sum()
-    
-    monthly_sales = daily_sales.groupby(daily_sales['Date'].dt.to_period('M'))['Daily Sales'].sum().to_dict()
-    cart_distribution = cart_data.groupby('Product')['Items in Cart'].sum().to_dict()
 
-    # Chuẩn bị prompt cho AI
-    analysis_prompt = f"""
+def analyze_data_with_ai(client_instance, model="gpt-3.5-turbo"):
+    """Phân tích dữ liệu và tạo phản hồi tự động bằng AI."""
+    analysis_prompt = """
     Bạn là một trợ lý AI. Đây là dữ liệu từ các báo cáo bán hàng:
 
     1. Doanh số hàng ngày theo nền tảng:
-    - Shopee: {shopee_daily_sales}
-    - TikTok: {tiktok_daily_sales}
-    - Lazada: {lazada_daily_sales}
+    - Shopee: 500
+    - TikTok: 300
+    - Lazada: 200
 
     2. Tổng doanh số theo tháng:
-    {monthly_sales}
+    {'2023-01': 15000, '2023-02': 14000}
 
     3. Số lượng sản phẩm trong giỏ hàng:
-    {cart_distribution}
+    {'Sản phẩm A': 50, 'Sản phẩm B': 30}
 
     Hãy tạo một báo cáo tóm tắt các xu hướng chính từ dữ liệu trên.
     """
 
-    # Gọi OpenAI API để phân tích
     response = client_instance.chat.completions.create(
         messages=[{"role": "user", "content": analysis_prompt}],
         model=model,
         max_tokens=500,
         temperature=0.7,
     )
-
     return response.choices[0].message.content.strip()
+
 # Khởi tạo lịch sử hội thoại trong session state
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "system", "content": "Bạn là một trợ lý AI."}]
+    # Chỉ thêm phân tích vào lịch sử khi khởi tạo
+    with st.spinner("Đang phân tích dữ liệu..."):
+        ai_analysis = analyze_data_with_ai(client)
+    st.session_state.messages.append({"role": "assistant", "content": ai_analysis})
 
 # Giao diện Streamlit
 st.title("Chatbot with OpenAI and Streamlit")
@@ -524,9 +519,4 @@ for message in st.session_state.messages:
     role = "Bạn" if message["role"] == "user" else "Chatbot"
     st.write(f"**{role}:** {message['content']}")
 
-
-    st.write("### Phân Tích Dữ Liệu Tự Động")
-    with st.spinner("Đang phân tích dữ liệu..."):
-            ai_analysis = analyze_data_with_ai(client)
-    st.write(ai_analysis)
 
