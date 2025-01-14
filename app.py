@@ -439,6 +439,16 @@ api_key = st.secrets["openai"]["OPENAI_API_KEY"]
 # Khởi tạo client OpenAI
 client = OpenAI(api_key=api_key)
 
+# Load dữ liệu từ các file CSV
+current_day_sales = pd.read_csv('current_day_sales.csv')
+current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
+
+daily_sales = pd.read_csv('daily_sales.csv')
+daily_sales['Date'] = pd.to_datetime(daily_sales['Date'])
+
+cart_data = pd.read_csv('items_in_cart.csv')
+daily_sales_by_platform = daily_sales.groupby(['Date', 'Platform'])['Daily Sales'].sum().reset_index()
+
 def trim_messages(messages, max_tokens=3000):
     """Cắt giảm tin nhắn để đảm bảo không vượt quá tổng số tokens."""
     current_tokens = sum(len(message["content"].split()) for message in messages)
@@ -462,20 +472,27 @@ def get_completion(messages, client_instance, model="gpt-3.5-turbo"):
     return response.choices[0].message.content.strip()
 
 def analyze_data_with_ai(client_instance, model="gpt-3.5-turbo"):
-    """Phân tích dữ liệu và tạo phản hồi tự động bằng AI."""
-    analysis_prompt = """
+    """Phân tích dữ liệu từ các file CSV và tạo phản hồi tự động bằng AI."""
+    shopee_daily_sales = daily_sales_by_platform[daily_sales_by_platform['Platform'] == "Shopee"]['Daily Sales'].sum()
+    tiktok_daily_sales = daily_sales_by_platform[daily_sales_by_platform['Platform'] == "TikTok"]['Daily Sales'].sum()
+    lazada_daily_sales = daily_sales_by_platform[daily_sales_by_platform['Platform'] == "Lazada"]['Daily Sales'].sum()
+
+    monthly_sales = daily_sales.groupby(daily_sales['Date'].dt.to_period('M'))['Daily Sales'].sum().to_dict()
+    cart_distribution = cart_data.groupby('Product')['Items in Cart'].sum().to_dict()
+
+    analysis_prompt = f"""
     Bạn là một trợ lý AI. Đây là dữ liệu từ các báo cáo bán hàng:
 
     1. Doanh số hàng ngày theo nền tảng:
-    - Shopee: 500
-    - TikTok: 300
-    - Lazada: 200
+    - Shopee: {shopee_daily_sales}
+    - TikTok: {tiktok_daily_sales}
+    - Lazada: {lazada_daily_sales}
 
     2. Tổng doanh số theo tháng:
-    {'2023-01': 15000, '2023-02': 14000}
+    {monthly_sales}
 
     3. Số lượng sản phẩm trong giỏ hàng:
-    {'Sản phẩm A': 50, 'Sản phẩm B': 30}
+    {cart_distribution}
 
     Hãy tạo một báo cáo tóm tắt các xu hướng chính từ dữ liệu trên.
     """
