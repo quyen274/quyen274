@@ -460,7 +460,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
 
 API_URL = "https://generativeai.googleapis.com/v1beta2/models/gemini-1_5:predict"
-API_KEY = "AIzaSyB_HOUCEy8wCXq5WORDAnpKb3CvKFm_-_z4"  # Thay bằng API Key của bạn
+API_KEY = "AIzaSyB_HOUCEy8wCXq5WORDAnpKb3CvkFm-_z4"  # Thay bằng API Key của bạn
 
 # Hàm gọi API Gemini 1.5
 def query_gemini(prompt):
