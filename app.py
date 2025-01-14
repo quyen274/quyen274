@@ -465,42 +465,46 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Hàm gửi yêu cầu tới OpenAI API
-def generate_response(prompt):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Hoặc "gpt-4"
-            messages=[
-                {"role": "system", "content": "Bạn là một trợ lý AI."},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.7,
-            max_tokens=150,
-        )
-        return response['choices'][0]['message']['content']
-    except Exception as e:
-        return f"Lỗi: {str(e)}"
+st.title("ProtonX x ChatGPT")
+st.markdown("All slides in here [link](https://protonx.io/courses/63b4e2120c745e00190cb39a)", unsafe_allow_html=True)
 
-# Giao diện Streamlit
-st.title("Chatbot AI với OpenAI API")
-st.write("Nhập câu hỏi để bắt đầu trò chuyện với chatbot.")
+# Cấu hình trạng thái
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# Lưu lịch sử hội thoại
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-# Khung nhập liệu
-user_input = st.text_input("Bạn:", "")
-
-# Khi người dùng gửi tin nhắn
-if user_input:
-    bot_response = generate_response(user_input)
-    st.session_state.history.append(("Bạn", user_input))
-    st.session_state.history.append(("Chatbot", bot_response))
+if "openai_model" not in st.session_state:
+    st.session_state.openai_model = "gpt-3.5-turbo"
 
 # Hiển thị lịch sử hội thoại
-for sender, message in st.session_state.history:
-    st.markdown(f"**{sender}:** {message}")
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-# Nhắc người dùng
-st.write("Bạn có thể tiếp tục trò chuyện ở khung trên.")
+# Nhập yêu cầu từ người dùng
+if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
+    with st.chat_message("assistant"):
+        full_response = ""
+        response_holder = st.empty()
+
+        try:
+            for response in openai.ChatCompletion.create(
+                model=st.session_state.openai_model,
+                messages=[
+                    {"role": msg["role"], "content": msg["content"]}
+                    for msg in st.session_state.messages
+                ],
+                stream=True,
+            ):
+                delta = response.choices[0].delta.get("content", "")
+                full_response += delta
+                response_holder.markdown(full_response + "▌")
+
+            response_holder.markdown(full_response)
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+        except openai.error.OpenAIError as e:
+            st.error(f"Lỗi từ OpenAI API: {e}")
