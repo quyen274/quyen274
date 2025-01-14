@@ -473,7 +473,7 @@ def get_completion(prompt: str, client_instance: OpenAI, model: str = "gpt-3.5-t
     response = client_instance.chat.completions.create(
         messages=messages,
         model=model,
-        max_tokens=50,
+        max_tokens=500,
         temperature=0,
     )
     return response.choices[0].message.content.strip()
