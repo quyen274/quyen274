@@ -476,7 +476,7 @@ def get_completion(prompt: str, client_instance: OpenAI, model: str = "gpt-3.5-t
         max_tokens=50,
         temperature=0,
     )
-    return response.choices[0].message["content"].strip()
+    return response.choices[0].message.content.strip()
 
 # Khởi tạo Streamlit
 st.title("Chatbot with OpenAI and Streamlit")
