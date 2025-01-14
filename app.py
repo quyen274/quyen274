@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -487,35 +486,3 @@ def query_gemini(prompt):
         st.error(f"Response text: {response.text}")
         return {"error": "Invalid JSON"}
 
-# Giao diện Streamlit
-st.title("Chatbot with Gemini 1.5 API")
-
-# Lưu lịch sử hội thoại
-if "messages" not in st.session_state:
-    st.session_state["messages"] = []
-
-# Giao diện nhập liệu
-user_input = st.text_input("You:")
-
-if user_input:
-    # Thêm câu hỏi người dùng vào lịch sử
-    st.session_state["messages"].append({"role": "user", "content": user_input})
-    
-    # Gọi API Gemini 1.5
-    response = query_gemini(user_input)
-    
-    # Xử lý phản hồi từ API
-    if "candidates" in response and len(response["candidates"]) > 0:
-        bot_message = response["candidates"][0]["output"]
-    else:
-        bot_message = "Bot không thể trả lời ngay bây giờ."
-    
-    # Thêm câu trả lời của bot vào lịch sử
-    st.session_state["messages"].append({"role": "bot", "content": bot_message})
-
-# Hiển thị lịch sử hội thoại
-for msg in st.session_state["messages"]:
-    if msg["role"] == "user":
-        st.markdown(f"**You:** {msg['content']}")
-    else:
-        st.markdown(f"**Bot:** {msg['content']}")
