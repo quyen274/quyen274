@@ -473,7 +473,19 @@ def query_gemini(prompt):
         "temperature": 0.7
     }
     response = requests.post(API_URL, headers=headers, params=params, json=data)
-    return response.json()
+
+    # Kiểm tra trạng thái HTTP
+    if response.status_code != 200:
+        st.error(f"Error: {response.status_code} - {response.text}")
+        return {"error": f"HTTP {response.status_code}"}
+
+    # Kiểm tra phản hồi JSON
+    try:
+        return response.json()
+    except Exception as e:
+        st.error(f"Failed to parse JSON: {e}")
+        st.error(f"Response text: {response.text}")
+        return {"error": "Invalid JSON"}
 
 # Giao diện Streamlit
 st.title("Chatbot with Gemini 1.5 API")
