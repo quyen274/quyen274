@@ -468,6 +468,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # Hàm gửi yêu cầu tới OpenAI API
 st.title("ProtonX x ChatGPT")
 
+# Quản lý trạng thái
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "openai_model" not in st.session_state:
@@ -478,7 +479,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Nhập yêu cầu từ người dùng
+# Xử lý khi người dùng nhập
 if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -489,22 +490,23 @@ if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
         response_holder = st.empty()
 
         try:
-            for response in openai.ChatCompletion.acreate(
+            # Gửi yêu cầu tới OpenAI API
+            response = openai.ChatCompletion.create(
                 model=st.session_state.openai_model,
                 messages=[
                     {"role": msg["role"], "content": msg["content"]}
                     for msg in st.session_state.messages
                 ],
-                stream=True,
-            ):
-                delta = response.choices[0].delta.get("content", "")
-                full_response += delta
-                response_holder.markdown(full_response + "▌")  # Hiển thị tạm thời
-        
+                temperature=0.7,
+                stream=False,  # Nếu bạn không cần stream, đặt stream=False
+            )
+
+            # Lấy phản hồi từ API
+            full_response = response.choices[0].message["content"]
             response_holder.markdown(full_response)
+
+            # Lưu phản hồi vào trạng thái
             st.session_state.messages.append({"role": "assistant", "content": full_response})
-        
-        except openai.error.OpenAIError as e:  
-            st.error(f"Lỗi từ OpenAI API: {e}")
+
         except Exception as e:
-            st.error(f"Lỗi không xác định: {e}")
+            st.error(f"Lỗi khi gọi OpenAI API: {e}")
