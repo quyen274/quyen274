@@ -12,3 +12,4 @@ playwright
 plotly
 python-dotenv
 openai
+flask
