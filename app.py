@@ -171,10 +171,7 @@ if page == "Phân Tích Sản Phẩm":
         with col:
             st.plotly_chart(fig, use_container_width=False)
       
-    with st.spinner("Đang phân tích dữ liệu bằng AI..."):
-         ai_analysis = analyze_data_with_ai(client)
-         st.write("### Báo Cáo Tự Động Từ AI")
-         st.write(ai_analysis)   
+    
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
     st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
@@ -535,4 +532,9 @@ def analyze_data_with_ai(client_instance, model="gpt-3.5-turbo"):
     )
 
     return response.choices[0].message.content.strip()
+
+    with st.spinner("Đang phân tích dữ liệu bằng AI..."):
+         ai_analysis = analyze_data_with_ai(client)
+         st.write("### Báo Cáo Tự Động Từ AI")
+         st.write(ai_analysis)    
 
