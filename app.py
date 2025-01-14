@@ -199,8 +199,6 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
-
-    o
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
     st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
