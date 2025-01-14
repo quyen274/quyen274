@@ -9,7 +9,7 @@ import requests
 import os
 import openai
 from dotenv import load_dotenv
-from openai.error import OpenAIError
+from openai import OpenAI
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
         scenarios = json.load(file)
@@ -488,8 +488,8 @@ if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
         full_response = ""
         response_holder = st.empty()
 
-        try:
-            for response in openai.ChatCompletion.acreate(  # Đổi `create` thành `acreate` để tương thích
+       try:
+            for response in openai.ChatCompletion.acreate(
                 model=st.session_state.openai_model,
                 messages=[
                     {"role": msg["role"], "content": msg["content"]}
@@ -500,11 +500,11 @@ if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
                 delta = response.choices[0].delta.get("content", "")
                 full_response += delta
                 response_holder.markdown(full_response + "▌")  # Hiển thị tạm thời
-
+        
             response_holder.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
-
-        except OpenAIError as e:
+        
+        except openai.error.OpenAIError as e:  # Đổi 'openai.error.OpenAIError' thành 'openai.OpenAIError'
             st.error(f"Lỗi từ OpenAI API: {e}")
         except Exception as e:
             st.error(f"Lỗi không xác định: {e}")
