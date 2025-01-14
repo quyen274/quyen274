@@ -15,3 +15,4 @@ torch
 sentencepiece
 huggingface_hub
 requests
+transformers
