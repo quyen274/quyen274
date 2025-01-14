@@ -461,7 +461,7 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
 
 # Hugging Face API setup
 API_URL = "https://api-inference.huggingface.co/models/microsoft/Phi-3.5-mini-instruct"
-headers = {"Authorization": "Bearer YOUR_HUGGINGFACE_API_TOKEN"}
+headers = {"Authorization": "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"}
 
 def query_huggingface(payload):
     response = requests.post(API_URL, headers=headers, json=payload)
