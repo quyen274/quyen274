@@ -504,7 +504,7 @@ if prompt := st.chat_input("Hãy nhập vào yêu cầu?"):
             response_holder.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
         
-        except openai.error.OpenAIError as e:  # Đổi 'openai.error.OpenAIError' thành 'openai.OpenAIError'
+        except openai.error.OpenAIError as e:  
             st.error(f"Lỗi từ OpenAI API: {e}")
         except Exception as e:
             st.error(f"Lỗi không xác định: {e}")
