@@ -200,33 +200,7 @@ if page == "Phân Tích Sản Phẩm":
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
 
-    openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
-
-    def generate_response(prompt):
-            try:
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[{"role": "user", "content": prompt}],
-                )
-                return response.choices[0].message.content.strip()
-            except Exception as e:
-                return f"Error: {str(e)}"
-
-# Cấu hình ứng dụng Streamlit
-    st.title("Chatbot với OpenAI và Streamlit")
-    st.write("Trò chuyện với chatbot AI!")
-
-# Hộp nhập liệu cho người dùng
-    user_input = st.text_input("Bạn:", "")
-
-# Tạo phản hồi khi người dùng gửi câu hỏi
-    if st.button("Gửi"):
-            if user_input.strip():
-                with st.spinner("Đang tạo phản hồi..."):
-                    response = generate_response(user_input)
-                st.text_area("Chatbot:", value=response, height=200)
-            else:
-                st.warning("Vui lòng nhập tin nhắn!")
+    o
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
     st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
@@ -487,6 +461,36 @@ elif page == "Báo Cáo Tự Động Về Doanh Số":
             update_recent_table_data()
             refresh_tables()
             time.sleep(5)
+try:
+    openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
+except KeyError:
+    st.error("API Key không được tìm thấy trong 'st.secrets'. Hãy kiểm tra lại.")
+
+# Hàm gọi API
+def generate_response(prompt):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.choices[0].message["content"].strip()
+    except Exception as e:
+        return f"Lỗi: {str(e)}"
+
+# Giao diện Streamlit
+st.title("Chatbot với OpenAI trên Streamlit Cloud")
+
+# Lấy đầu vào từ người dùng
+user_input = st.text_input("Bạn:", "")
+
+# Tạo phản hồi
+if st.button("Gửi"):
+    if user_input:
+        with st.spinner("Đang xử lý..."):
+            output = generate_response(user_input)
+        st.text_area("Chatbot:", value=output, height=200)
+    else:
+        st.warning("Hãy nhập nội dung để trò chuyện!")
 
 
 
