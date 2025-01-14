@@ -196,30 +196,56 @@ if page == "Phân Tích Sản Phẩm":
     if st.button("Gen kịch bản khác"):
         st.session_state["current_scenario_index"] = (st.session_state["current_scenario_index"] + 1) % len(scenarios)
 
-    API_URL = "https://api-inference.huggingface.co/models/bigscience/bloom-560m"
-    headers = {"Authorization": f"Bearer your_huggingface_api_key"}  # Thay bằng API Key của bạn
+    
+    pipeline_url = "https://huggingface.co/spaces/yasirme/ChatBot-UI-With-API/blob/main/pipeline.json"
+    response = requests.get(pipeline_url)
 
-    def query(payload):
-            response = requests.post(API_URL, headers=headers, json=payload)
-            return response.json()
+    if response.status_code == 200:
+            pipeline_config = json.loads(response.text)
+    else:
+            st.error("Không thể tải pipeline.json. Kiểm tra URL.")
+            pipeline_config = None
 
-# Giao diện người dùng với Streamlit
-    st.title("Chat Bot với Hugging Face API")
-
-    user_input = st.text_input("Nhập câu hỏi của bạn:", placeholder="Hãy hỏi tôi bất cứ điều gì!")
-    if st.button("Hỏi"):
-            if user_input.strip():
-                with st.spinner("Đang xử lý..."):
-                    payload = {"inputs": user_input, "parameters": {"max_length": 150, "temperature": 0.7}}
-                    response = query(payload)
-                    if "error" in response:
-                        st.error("Đã xảy ra lỗi với mô hình.")
-                    else:
-                        st.success("Trả lời:")
-                        st.write(response[0]["generated_text"])
+# Hàm gọi API Hugging Face
+    def query_huggingface_api(api_url, inputs, max_length, temperature, top_p):
+            headers = {"Authorization": "Bearer your_huggingface_api_key"}  # Thay bằng API Key của bạn
+            payload = {
+                "inputs": inputs,
+                "parameters": {
+                    "max_length": max_length,
+                    "temperature": temperature,
+                    "top_p": top_p
+                }
+            }
+            response = requests.post(api_url, headers=headers, json=payload)
+            if response.status_code == 200:
+                return response.json()
             else:
-                st.warning("Vui lòng nhập câu hỏi trước khi bấm nút Hỏi.")
+                return {"error": f"HTTP {response.status_code}: {response.text}"}
 
+# Giao diện Streamlit
+    st.title("Chat Bot với Hugging Face")
+
+    if pipeline_config:
+            user_input = st.text_area("Nhập câu hỏi của bạn:", placeholder="Hãy hỏi tôi bất cứ điều gì!")
+            if st.button("Hỏi"):
+                if user_input.strip():
+                    with st.spinner("Đang xử lý..."):
+                        api_url = pipeline_config["api_url"]
+                        max_length = pipeline_config["max_length"]
+                        temperature = pipeline_config["temperature"]
+                        top_p = pipeline_config["top_p"]
+        
+                        response = query_huggingface_api(api_url, user_input, max_length, temperature, top_p)
+                        if "error" in response:
+                            st.error(f"Lỗi: {response['error']}")
+                        else:
+                            st.success("Trả lời:")
+                            st.write(response[0]["generated_text"])
+                else:
+                    st.warning("Vui lòng nhập câu hỏi trước khi bấm nút Hỏi.")
+    else:
+            st.error("Không thể sử dụng Chat Bot vì pipeline.json không tải được.")
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
     st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
