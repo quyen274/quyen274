@@ -488,7 +488,7 @@ if st.button("Gửi") and user_input.strip():
     with st.spinner("Đang xử lý..."):
         # Gọi hàm get_completion
         response = get_completion(user_input, client)
-    st.text_area("Chatbot:", value=response, height=200)
+    st.text_area("Chatbot:", value=response, height=800)
 
 
 
