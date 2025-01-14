@@ -468,7 +468,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 def generate_response(prompt):
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Bạn có thể sử dụng "gpt-4" nếu có quyền truy cập
+            model="gpt-3.5-turbo",  # Hoặc "gpt-4"
             messages=[
                 {"role": "system", "content": "Bạn là một trợ lý AI."},
                 {"role": "user", "content": prompt},
@@ -476,7 +476,7 @@ def generate_response(prompt):
             temperature=0.7,
             max_tokens=150,
         )
-        return response.choices[0].message["content"]
+        return response['choices'][0]['message']['content']
     except Exception as e:
         return f"Lỗi: {str(e)}"
 
