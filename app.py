@@ -7,7 +7,7 @@ import time
 import json
 import requests
 import os
-import opena
+import openai
 from dotenv import load_dotenv
 
 with open("scenarios.json", "r", encoding="utf-8") as file:
