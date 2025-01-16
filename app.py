@@ -71,7 +71,7 @@ if page == "Phân Tích Sản Phẩm":
         ))
 
     fig_bar_monthly.update_layout(
-        title="Total Sales by Month and Platform",
+        title="Tổng doanh số bán theo số lượng và nền tảng",
         xaxis_title="Month",
         yaxis_title="Total Sales",
         barmode='group',
@@ -159,7 +159,7 @@ if page == "Phân Tích Sản Phẩm":
 
         fig_pie = go.Figure(data=[go.Pie(labels=items_in_cart['Product'], values=items_in_cart['Items in Cart'], hole=0.3)])
         fig_pie.update_layout(
-            title=f"Cart Distribution on {platform}",
+            title=f"Tỷ lệ phân phối sản phẩm theo {platform}",
             margin=dict(l=10, r=10, t=50, b=10),
             height=350,
             width=350
