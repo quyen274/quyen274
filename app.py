@@ -101,7 +101,7 @@ if page == "Phân Tích Sản Phẩm":
         ))
 
     fig_bar_daily.update_layout(
-        title="Sales by Day in the Last 30 Days (by Platform)",
+        title="Doanh số bán trong 30 ngày gần nhất (by Platform)",
         xaxis_title="Date",
         yaxis_title="Daily Sales",
         barmode='stack',
@@ -139,7 +139,7 @@ if page == "Phân Tích Sản Phẩm":
                                  name='3-Day Rolling Sales', line=dict(color='red', width=2)))
 
         fig.update_layout(
-            title=f"Sales for {product} (Last 30 Days - {selected_platform})",
+            title=f"Doanh số {product} (30 ngày gần nhất- {selected_platform})",
             xaxis_title="Date",
             yaxis_title="Sales",
             xaxis=dict(tickformat="%b %d"),
