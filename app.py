@@ -514,7 +514,7 @@ if "messages" not in st.session_state:
     st.session_state.messages.append({"role": "assistant", "content": ai_analysis})
 
 # Giao diện Streamlit
-st.title("Chatbot sử dựng API của OpenAI")
+st.title("Chatbot sử dụng API của OpenAI")
 
 # Lấy đầu vào từ người dùng
 user_input = st.text_input("Bạn:", "")
