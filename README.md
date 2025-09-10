@@ -9,7 +9,7 @@ IM Nguyen Van Quyen, a newbie Data Analyst
 # Project
 ## https://github.com/quyen274/Project_VN_ElectricVehicle
 ## https://github.com/quyen274/PHP_Code_Azuki_Website
-### ✍️ Random Dev Quote
+### ✍️ Dev Quote
 ![](https://quotes-github-readme.vercel.app/api?type=horizontal&theme=radical)
 
 ---
